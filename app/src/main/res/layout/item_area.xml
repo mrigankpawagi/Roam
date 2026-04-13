@@ -7,7 +7,7 @@
     android:layout_marginHorizontal="4dp"
     android:layout_marginVertical="4dp"
     android:foreground="?attr/selectableItemBackground"
-    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardBackgroundColor="@color/colorSurface"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp">
 

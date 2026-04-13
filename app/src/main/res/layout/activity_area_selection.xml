@@ -25,7 +25,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
+        android:background="@color/colorSurface"
         android:elevation="4dp"
         android:orientation="horizontal"
         android:padding="8dp">
@@ -92,7 +92,7 @@
         android:id="@+id/bottomBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
+        android:background="@color/colorSurface"
         android:elevation="8dp"
         android:orientation="vertical"
         android:padding="16dp">

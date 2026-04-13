@@ -5,14 +5,21 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Location pin body -->
+    <!--
+      Adaptive-icon foreground — drawn over the blue background.
+      Safe zone: inner 72dp circle (18dp inset on all sides).
+      Pin head: circle centred at (54,40) r=18  → top y=22, sides x=36/72
+      Pin tip: (54,82)  — all within the safe zone.
+    -->
+
+    <!-- White teardrop pin body -->
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M54,28 C45.72,28 39,34.72 39,43 C39,54.25 54,80 54,80 C54,80 69,54.25 69,43 C69,34.72 62.28,28 54,28 Z" />
+        android:pathData="M54,82 C47,68 36,59 36,40 A18,18,0,0,1,72,40 C72,59,61,68,54,82z" />
 
-    <!-- Inner circle of pin (drawn as path approximation) -->
+    <!-- Green inner circle — represents an "explored" area -->
     <path
-        android:fillColor="#FF1976D2"
-        android:pathData="M54,50 A7,7 0 1,1 53.999,49.999 Z" />
+        android:fillColor="#FF4CAF50"
+        android:pathData="M46,40 a8,8,0,0,1,16,0 a8,8,0,0,1,-16,0" />
 
 </vector>

@@ -29,4 +29,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             repository.deleteArea(area)
         }
     }
+
+    fun updateArea(area: Area) {
+        viewModelScope.launch {
+            repository.updateArea(area)
+        }
+    }
 }

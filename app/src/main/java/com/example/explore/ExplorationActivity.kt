@@ -9,14 +9,12 @@ import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.os.Bundle
-import android.widget.SeekBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.preference.PreferenceManager
 import com.example.explore.data.Area
 import com.example.explore.data.GridUtils
 import com.example.explore.databinding.ActivityExplorationBinding
@@ -86,7 +84,6 @@ class ExplorationActivity : AppCompatActivity() {
         }
 
         setupMap()
-        setupSeekBar()
 
         binding.buttonStartStop.setOnClickListener {
             if (viewModel.isExploring.value == true) {
@@ -144,52 +141,40 @@ class ExplorationActivity : AppCompatActivity() {
         binding.mapView.controller.setZoom(17.0)
     }
 
-    private fun getRadiusFromPrefs(): Int {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        return prefs.getString("exploration_radius", "5")?.toIntOrNull() ?: 5
-    }
-
-    private fun setupSeekBar() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val savedRadius = getRadiusFromPrefs()
-        binding.seekRadius.progress = (savedRadius - 1).coerceIn(0, 49)
-        updateRadiusLabel(savedRadius)
-
-        binding.seekRadius.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val radius = progress + 1
-                updateRadiusLabel(radius)
-                if (fromUser) {
-                    prefs.edit().putString("exploration_radius", radius.toString()).apply()
-                }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
-    }
-
-    private fun updateRadiusLabel(radius: Int) {
-        binding.textRadiusLabel.text = getString(R.string.radius_value, radius)
-    }
-
     private fun setupAreaOverlay(area: Area) {
         areaBoundingBoxOverlay?.let { binding.mapView.overlays.remove(it) }
 
-        val polygon = Polygon(binding.mapView).apply {
-            points = listOf(
-                GeoPoint(area.minLat, area.minLng),
-                GeoPoint(area.maxLat, area.minLng),
-                GeoPoint(area.maxLat, area.maxLng),
-                GeoPoint(area.minLat, area.maxLng),
-                GeoPoint(area.minLat, area.minLng)
-            )
-            fillPaint.color = 0x110000FF
-            outlinePaint.color = 0xFF2196F3.toInt()
-            outlinePaint.strokeWidth = 4f
+        val polygons = GridUtils.parsePolygons(area.polygonsJson)
+        if (polygons.isNotEmpty()) {
+            // Draw each polygon
+            for (ring in polygons) {
+                val pts = ring.map { (lat, lng) -> GeoPoint(lat, lng) }.toMutableList()
+                pts.add(pts[0]) // close the ring
+                val polygon = Polygon(binding.mapView).apply {
+                    points = pts
+                    fillPaint.color = 0x110000FF
+                    outlinePaint.color = 0xFF2196F3.toInt()
+                    outlinePaint.strokeWidth = 4f
+                }
+                binding.mapView.overlays.add(0, polygon)
+            }
+        } else {
+            // Fall back to bounding box rectangle
+            val polygon = Polygon(binding.mapView).apply {
+                points = listOf(
+                    GeoPoint(area.minLat, area.minLng),
+                    GeoPoint(area.maxLat, area.minLng),
+                    GeoPoint(area.maxLat, area.maxLng),
+                    GeoPoint(area.minLat, area.maxLng),
+                    GeoPoint(area.minLat, area.minLng)
+                )
+                fillPaint.color = 0x110000FF
+                outlinePaint.color = 0xFF2196F3.toInt()
+                outlinePaint.strokeWidth = 4f
+            }
+            areaBoundingBoxOverlay = polygon
+            binding.mapView.overlays.add(0, polygon)
         }
-        areaBoundingBoxOverlay = polygon
-        binding.mapView.overlays.add(0, polygon)
     }
 
     private fun checkPermissionsAndStartExploration() {
@@ -209,12 +194,11 @@ class ExplorationActivity : AppCompatActivity() {
 
     private fun startExploration() {
         val area = viewModel.area.value ?: return
-        val radiusMeters = getRadiusFromPrefs().toDouble()
 
         val serviceIntent = Intent(this, LocationTrackingService::class.java).apply {
             action = LocationTrackingService.ACTION_START
             putExtra(LocationTrackingService.EXTRA_AREA_ID, area.id)
-            putExtra(LocationTrackingService.EXTRA_RADIUS_METERS, radiusMeters)
+            putExtra(LocationTrackingService.EXTRA_RADIUS_METERS, area.radiusMeters)
             putExtra(LocationTrackingService.EXTRA_AREA_NAME, area.name)
         }
         startForegroundService(serviceIntent)

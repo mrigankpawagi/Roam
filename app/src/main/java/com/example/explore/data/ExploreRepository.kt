@@ -17,6 +17,8 @@ class ExploreRepository(context: Context) {
 
     suspend fun deleteArea(area: Area) = areaDao.deleteArea(area)
 
+    suspend fun updateArea(area: Area) = areaDao.updateArea(area)
+
     fun getExploredCellsForArea(areaId: Long): LiveData<List<ExploredCell>> =
         exploredCellDao.getExploredCellsForArea(areaId)
 
@@ -30,7 +32,20 @@ class ExploreRepository(context: Context) {
     suspend fun deleteAllCellsForArea(areaId: Long) = exploredCellDao.deleteAllForArea(areaId)
 
     suspend fun getExploredPercent(area: Area): Float {
-        val totalCells = GridUtils.numRows(area).toLong() * GridUtils.numCols(area).toLong()
+        val polygons = GridUtils.parsePolygons(area.polygonsJson)
+        val rows = GridUtils.numRows(area)
+        val cols = GridUtils.numCols(area)
+        val totalCells: Long
+        if (polygons.isEmpty()) {
+            totalCells = rows.toLong() * cols.toLong()
+        } else {
+            totalCells = (0 until rows).sumOf { r ->
+                (0 until cols).count { c ->
+                    val (cLat, cLng) = GridUtils.cellCenterLatLng(area, r, c)
+                    polygons.any { poly -> GridUtils.pointInPolygon(cLat, cLng, poly) }
+                }.toLong()
+            }
+        }
         if (totalCells == 0L) return 0f
         val exploredCount = exploredCellDao.getExploredCellCount(area.id)
         return exploredCount.toFloat() / totalCells.toFloat() * 100f

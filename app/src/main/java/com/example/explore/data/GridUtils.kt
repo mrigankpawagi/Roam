@@ -1,5 +1,7 @@
 package com.example.explore.data
 
+import org.json.JSONArray
+import org.json.JSONObject
 import kotlin.math.*
 
 object GridUtils {
@@ -86,4 +88,80 @@ object GridUtils {
         }
         return result
     }
+
+    /**
+     * Ray-casting point-in-polygon test.
+     * [polygon] is a list of (lat, lng) pairs forming a closed ring (first == last is optional).
+     */
+    fun pointInPolygon(lat: Double, lng: Double, polygon: List<Pair<Double, Double>>): Boolean {
+        if (polygon.size < 3) return false
+        var inside = false
+        var j = polygon.size - 1
+        for (i in polygon.indices) {
+            val (iLat, iLng) = polygon[i]
+            val (jLat, jLng) = polygon[j]
+            if ((iLng > lng) != (jLng > lng) &&
+                lat < (jLat - iLat) * (lng - iLng) / (jLng - iLng) + iLat
+            ) {
+                inside = !inside
+            }
+            j = i
+        }
+        return inside
+    }
+
+    /**
+     * Parse polygonsJson string into a list of polygon rings.
+     * Each ring is a list of (lat, lng) pairs.
+     */
+    fun parsePolygons(json: String): List<List<Pair<Double, Double>>> {
+        if (json.isBlank() || json == "[]") return emptyList()
+        return try {
+            val arr = JSONArray(json)
+            (0 until arr.length()).map { i ->
+                val ring = arr.getJSONArray(i)
+                (0 until ring.length()).map { j ->
+                    val pt = ring.getJSONObject(j)
+                    Pair(pt.getDouble("lat"), pt.getDouble("lng"))
+                }
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    /**
+     * Serialize a list of polygon rings to a JSON string.
+     */
+    fun serializePolygons(polygons: List<List<Pair<Double, Double>>>): String {
+        val arr = JSONArray()
+        for (ring in polygons) {
+            val rArr = JSONArray()
+            for ((lat, lng) in ring) {
+                rArr.put(JSONObject().apply {
+                    put("lat", lat)
+                    put("lng", lng)
+                })
+            }
+            arr.put(rArr)
+        }
+        return arr.toString()
+    }
+
+    /**
+     * Compute a bounding box that tightly encloses all given polygons.
+     * Returns (minLat, maxLat, minLng, maxLng) or null if the polygon list is empty.
+     */
+    fun boundingBox(polygons: List<List<Pair<Double, Double>>>): Quadruple? {
+        val allPoints = polygons.flatten()
+        if (allPoints.isEmpty()) return null
+        return Quadruple(
+            minLat = allPoints.minOf { it.first },
+            maxLat = allPoints.maxOf { it.first },
+            minLng = allPoints.minOf { it.second },
+            maxLng = allPoints.maxOf { it.second }
+        )
+    }
+
+    data class Quadruple(val minLat: Double, val maxLat: Double, val minLng: Double, val maxLng: Double)
 }

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.explore'
+    namespace 'in.mrigank.roam'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.explore"
+        applicationId "in.mrigank.roam"
         minSdk 26
         targetSdk 34
         versionCode 1

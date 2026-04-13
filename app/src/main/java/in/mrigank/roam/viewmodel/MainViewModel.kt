@@ -1,10 +1,10 @@
-package com.example.explore.viewmodel
+package in.mrigank.roam.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.explore.data.Area
-import com.example.explore.data.ExploreRepository
+import in.mrigank.roam.data.Area
+import in.mrigank.roam.data.ExploreRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

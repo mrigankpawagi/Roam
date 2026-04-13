@@ -1,4 +1,4 @@
-package com.example.explore
+package in.mrigank.roam
 
 import android.content.Intent
 import android.os.Bundle
@@ -11,11 +11,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.explore.data.Area
-import com.example.explore.databinding.ActivityMainBinding
-import com.example.explore.databinding.DialogRadiusBinding
-import com.example.explore.databinding.ItemAreaBinding
-import com.example.explore.viewmodel.MainViewModel
+import in.mrigank.roam.data.Area
+import in.mrigank.roam.databinding.ActivityMainBinding
+import in.mrigank.roam.databinding.DialogRadiusBinding
+import in.mrigank.roam.databinding.ItemAreaBinding
+import in.mrigank.roam.viewmodel.MainViewModel
 
 class MainActivity : AppCompatActivity() {
 

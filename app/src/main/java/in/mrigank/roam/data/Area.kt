@@ -1,4 +1,4 @@
-package com.example.explore.data
+package in.mrigank.roam.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -6,20 +6,25 @@
     android:viewportHeight="108">
 
     <!--
-      Adaptive-icon foreground — drawn over the blue background.
+      Adaptive-icon foreground — drawn over the forest-green background.
       Safe zone: inner 72dp circle (18dp inset on all sides).
-      Pin head: circle centred at (54,40) r=18  → top y=22, sides x=36/72
-      Pin tip: (54,82)  — all within the safe zone.
+      Compass needle: north (solid white) pointing up, south (ghost white)
+      pointing down, with a small accent circle at the pivot.
     -->
 
-    <!-- White teardrop pin body -->
+    <!-- North arrow — solid white -->
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M54,82 C47,68 36,59 36,40 A18,18,0,0,1,72,40 C72,59,61,68,54,82z" />
+        android:pathData="M54,22 L59,52 L54,48 L49,52 Z" />
 
-    <!-- Green inner circle — represents an "explored" area -->
+    <!-- South arrow — semi-transparent white -->
     <path
-        android:fillColor="#FF4CAF50"
-        android:pathData="M46,40 a8,8,0,0,1,16,0 a8,8,0,0,1,-16,0" />
+        android:fillColor="#80FFFFFF"
+        android:pathData="M54,86 L49,56 L54,60 L59,56 Z" />
+
+    <!-- Pivot circle -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M50,54 a4,4,0,0,1,8,0 a4,4,0,0,1,-8,0" />
 
 </vector>

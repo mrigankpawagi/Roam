@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Explore</string>
+    <string name="app_name">Roam</string>
     <string name="add_area">Add Area</string>
     <string name="edit_area">Edit Area</string>
     <string name="area_name_hint">Area Name</string>

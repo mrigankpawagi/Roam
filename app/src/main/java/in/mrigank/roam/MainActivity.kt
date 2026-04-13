@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.SeekBar
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +25,36 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
     private val adapter = AreaAdapter()
 
+    private var pendingExportArea: Area? = null
+    private var pendingExportWithProgress: Boolean = false
+
+    private val createDocumentLauncher = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri ?: return@registerForActivityResult
+        val area = pendingExportArea ?: return@registerForActivityResult
+        viewModel.exportAreaToFile(area, pendingExportWithProgress, uri, contentResolver) { success ->
+            Toast.makeText(
+                this,
+                if (success) getString(R.string.export_success) else getString(R.string.export_error),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private val openDocumentLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri ?: return@registerForActivityResult
+        viewModel.importAreaFromFile(uri, contentResolver) { success ->
+            Toast.makeText(
+                this,
+                if (success) getString(R.string.import_success) else getString(R.string.import_error),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -35,6 +67,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.fab.setOnClickListener {
             startActivity(Intent(this, AreaSelectionActivity::class.java))
+        }
+
+        binding.fabImport.setOnClickListener {
+            openDocumentLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
         }
 
         viewModel.allAreas.observe(this) { areas ->
@@ -77,6 +113,24 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton(R.string.save) { _, _ ->
                 val newRadius = (seekBar.progress + 1).toDouble()
                 viewModel.updateArea(area.copy(radiusMeters = newRadius))
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showExportDialog(area: Area) {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.export_area)
+            .setItems(
+                arrayOf(
+                    getString(R.string.export_with_progress),
+                    getString(R.string.export_without_progress)
+                )
+            ) { _, which ->
+                pendingExportArea = area
+                pendingExportWithProgress = (which == 0)
+                val safeName = area.name.replace(Regex("[^a-zA-Z0-9_\\-]"), "_")
+                createDocumentLauncher.launch("roam_${safeName}.json")
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
@@ -126,7 +180,8 @@ class MainActivity : AppCompatActivity() {
                     val popup = PopupMenu(this@MainActivity, anchor)
                     popup.menu.add(0, MENU_EDIT, 0, R.string.edit_area)
                     popup.menu.add(0, MENU_RADIUS, 1, R.string.set_radius)
-                    popup.menu.add(0, MENU_DELETE, 2, R.string.delete)
+                    popup.menu.add(0, MENU_EXPORT, 2, R.string.export_area)
+                    popup.menu.add(0, MENU_DELETE, 3, R.string.delete)
                     popup.setOnMenuItemClickListener { item ->
                         when (item.itemId) {
                             MENU_EDIT -> {
@@ -138,6 +193,10 @@ class MainActivity : AppCompatActivity() {
                             }
                             MENU_RADIUS -> {
                                 showRadiusDialog(area)
+                                true
+                            }
+                            MENU_EXPORT -> {
+                                showExportDialog(area)
                                 true
                             }
                             MENU_DELETE -> {
@@ -156,6 +215,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val MENU_EDIT = 1
         private const val MENU_RADIUS = 2
-        private const val MENU_DELETE = 3
+        private const val MENU_EXPORT = 3
+        private const val MENU_DELETE = 4
     }
 }

@@ -74,6 +74,17 @@ class ExplorationActivity : AppCompatActivity() {
 
         viewModel.loadArea(areaId)
 
+        // Re-attach to the service if it was already running when we left the activity.
+        // The volatile flag is a best-effort check; if the service stops concurrently the
+        // receiver will simply never receive broadcasts and is cleaned up in onDestroy/stopExploration.
+        if (LocationTrackingService.isRunning) {
+            viewModel.isExploring.value = true
+            LocalBroadcastManager.getInstance(this).registerReceiver(
+                locationReceiver,
+                IntentFilter(LocationTrackingService.ACTION_LOCATION_UPDATE)
+            )
+        }
+
         setupMap()
         setupSeekBar()
 
@@ -96,6 +107,13 @@ class ExplorationActivity : AppCompatActivity() {
             val locOverlay = CurrentLocationOverlay()
             currentLocationOverlay = locOverlay
             binding.mapView.overlays.add(locOverlay)
+
+            // Immediately seed with any cells that were already emitted before this
+            // observer ran — this restores the overlay after the user navigates back.
+            viewModel.exploredCells.value?.let { cells ->
+                overlay.cells = cells.map { Pair(it.cellRow, it.cellCol) }.toSet()
+                binding.mapView.invalidate()
+            }
 
             val bb = BoundingBox(area.maxLat, area.maxLng, area.minLat, area.minLng)
             binding.mapView.post {

@@ -63,6 +63,7 @@ class LocationTrackingService : Service() {
                     return START_NOT_STICKY
                 }
 
+                isRunning = true
                 startForeground(NOTIFICATION_ID, createNotification())
                 startLocationUpdates()
             }
@@ -144,6 +145,7 @@ class LocationTrackingService : Service() {
     }
 
     private fun stopTracking() {
+        isRunning = false
         locationManager?.removeUpdates(locationListener)
         serviceScope.cancel()
         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -152,6 +154,7 @@ class LocationTrackingService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        isRunning = false
         locationManager?.removeUpdates(locationListener)
         serviceScope.cancel()
     }
@@ -168,5 +171,9 @@ class LocationTrackingService : Service() {
         const val EXTRA_LAT = "extra_lat"
         const val EXTRA_LNG = "extra_lng"
         private const val NOTIFICATION_ID = 1001
+
+        /** True while the service is actively tracking location. */
+        @Volatile
+        var isRunning = false
     }
 }

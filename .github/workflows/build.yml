@@ -2,9 +2,7 @@ name: Android CI
 
 on:
   push:
-    branches: [ main, master ]
   pull_request:
-    branches: [ main, master ]
 
 permissions:
   contents: read
@@ -25,11 +23,6 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: '8.4'
-
-      - name: Generate Gradle wrapper jar
-        run: gradle wrapper --gradle-version 8.4
 
       - name: Make gradlew executable
         run: chmod +x gradlew
@@ -44,3 +37,4 @@ jobs:
         with:
           name: Explore-debug-APK
           path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

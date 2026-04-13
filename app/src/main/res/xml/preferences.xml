@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ListPreference
+        app:key="exploration_radius"
+        app:title="@string/pref_radius_title"
+        app:summary="@string/pref_radius_summary"
+        app:entries="@array/radius_entries"
+        app:entryValues="@array/radius_values"
+        app:defaultValue="5"
+        app:useSimpleSummaryProvider="true" />
+
+</PreferenceScreen>

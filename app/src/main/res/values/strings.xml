@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Explore</string>
+    <string name="add_area">Add Area</string>
+    <string name="area_name_hint">Area Name</string>
+    <string name="instructions_select_area">Double-tap to set first corner</string>
+    <string name="instructions_second_corner">Double-tap to set second corner</string>
+    <string name="instructions_ready">Area selected. Enter a name and tap Save.</string>
+    <string name="save">Save</string>
+    <string name="reset">Reset</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="radius_value">Radius: %d m</string>
+    <string name="error_enter_name">Please enter an area name</string>
+    <string name="error_select_area">Please select an area on the map first</string>
+    <string name="error_area_too_small">Selected area is too small</string>
+    <string name="error_location_permission">Location permission is required to track exploration</string>
+    <string name="no_areas">No areas yet. Tap + to add one.</string>
+    <string name="percent_loading">…</string>
+    <string name="percent_format">%.1f%%</string>
+    <string name="pref_radius_title">Exploration Radius</string>
+    <string name="pref_radius_summary">Distance in meters to mark cells as explored</string>
+
+    <string-array name="radius_entries">
+        <item>1 m</item>
+        <item>2 m</item>
+        <item>5 m</item>
+        <item>10 m</item>
+        <item>20 m</item>
+        <item>50 m</item>
+    </string-array>
+
+    <string-array name="radius_values">
+        <item>1</item>
+        <item>2</item>
+        <item>5</item>
+        <item>10</item>
+        <item>20</item>
+        <item>50</item>
+    </string-array>
+</resources>

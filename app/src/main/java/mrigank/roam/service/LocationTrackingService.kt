@@ -33,6 +33,10 @@ class LocationTrackingService : Service() {
     private var radiusMeters: Double = 5.0
     private var areaName: String = "Area"
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private var lastUiAcceptedLocation: Location? = null
+    private var lastExplorationAcceptedLocation: Location? = null
+    private var lastSmoothedUiLocation: Location? = null
+    private var latestGpsEventTimeMs: Long = Long.MIN_VALUE
 
     private val locationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
@@ -150,12 +154,37 @@ class LocationTrackingService : Service() {
             return
         }
 
-        val broadcastIntent = Intent(ACTION_LOCATION_UPDATE).apply {
-            putExtra(EXTRA_LAT, location.latitude)
-            putExtra(EXTRA_LNG, location.longitude)
-            putExtra(EXTRA_AREA_ID, areaId)
+        if (location.provider == LocationManager.GPS_PROVIDER) {
+            latestGpsEventTimeMs = maxOf(latestGpsEventTimeMs, locationEventTimeMs(location))
         }
-        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+
+        if (shouldAcceptLocation(
+                location = location,
+                lastAccepted = lastUiAcceptedLocation,
+                maxAccuracyMeters = MAX_UI_ACCURACY_METERS,
+                maxSpeedMetersPerSecond = MAX_UI_SPEED_MPS
+            )
+        ) {
+            val smoothedLocation = smoothUiLocation(location)
+            val broadcastIntent = Intent(ACTION_LOCATION_UPDATE).apply {
+                putExtra(EXTRA_LAT, smoothedLocation.latitude)
+                putExtra(EXTRA_LNG, smoothedLocation.longitude)
+                putExtra(EXTRA_AREA_ID, areaId)
+            }
+            LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+            lastUiAcceptedLocation = Location(location)
+        }
+
+        if (!shouldAcceptLocation(
+                location = location,
+                lastAccepted = lastExplorationAcceptedLocation,
+                maxAccuracyMeters = MAX_EXPLORATION_ACCURACY_METERS,
+                maxSpeedMetersPerSecond = MAX_EXPLORATION_SPEED_MPS
+            )
+        ) {
+            return
+        }
+        lastExplorationAcceptedLocation = Location(location)
 
         serviceScope.launch {
             val area = repository?.getAreaById(areaId) ?: return@launch
@@ -166,6 +195,78 @@ class LocationTrackingService : Service() {
             if (exploredCells.isNotEmpty()) {
                 repository?.insertCells(exploredCells)
             }
+        }
+    }
+
+    private fun shouldAcceptLocation(
+        location: Location,
+        lastAccepted: Location?,
+        maxAccuracyMeters: Float,
+        maxSpeedMetersPerSecond: Float
+    ): Boolean {
+        if (!location.hasAccuracy() || location.accuracy < 0f || location.accuracy > maxAccuracyMeters) {
+            return false
+        }
+
+        val eventTimeMs = locationEventTimeMs(location)
+
+        if (location.provider == LocationManager.NETWORK_PROVIDER &&
+            latestGpsEventTimeMs != Long.MIN_VALUE &&
+            eventTimeMs + NETWORK_STALE_GRACE_MS < latestGpsEventTimeMs
+        ) {
+            return false
+        }
+
+        val previous = lastAccepted ?: return true
+        val previousTimeMs = locationEventTimeMs(previous)
+        val dtMs = eventTimeMs - previousTimeMs
+
+        if (dtMs < -ALLOWED_TIME_BACKSTEP_MS) {
+            return false
+        }
+        if (dtMs <= 0) {
+            return location.accuracy < previous.accuracy
+        }
+
+        if (previous.provider == LocationManager.GPS_PROVIDER &&
+            location.provider == LocationManager.NETWORK_PROVIDER &&
+            dtMs < GPS_PREFERENCE_WINDOW_MS &&
+            location.accuracy >= previous.accuracy * NETWORK_MUST_BE_BETTER_FACTOR
+        ) {
+            return false
+        }
+
+        val maxAllowedDistance = maxSpeedMetersPerSecond * (dtMs / 1000f) + JUMP_DISTANCE_TOLERANCE_METERS
+        if (previous.distanceTo(location) > maxAllowedDistance) {
+            return false
+        }
+
+        return true
+    }
+
+    private fun smoothUiLocation(location: Location): Location {
+        val previousSmoothed = lastSmoothedUiLocation
+        if (previousSmoothed == null) {
+            val first = Location(location)
+            lastSmoothedUiLocation = first
+            return first
+        }
+
+        val distanceMeters = previousSmoothed.distanceTo(location)
+        val alpha = if (distanceMeters >= UI_SMOOTH_FAST_DISTANCE_METERS) UI_SMOOTH_FAST_ALPHA else UI_SMOOTH_ALPHA
+        val smoothed = Location(location).apply {
+            latitude = previousSmoothed.latitude + (location.latitude - previousSmoothed.latitude) * alpha
+            longitude = previousSmoothed.longitude + (location.longitude - previousSmoothed.longitude) * alpha
+        }
+        lastSmoothedUiLocation = smoothed
+        return smoothed
+    }
+
+    private fun locationEventTimeMs(location: Location): Long {
+        return if (location.elapsedRealtimeNanos > 0L) {
+            location.elapsedRealtimeNanos / 1_000_000L
+        } else {
+            location.time
         }
     }
 
@@ -200,8 +301,20 @@ class LocationTrackingService : Service() {
         const val EXTRA_LNG = "extra_lng"
         private const val NOTIFICATION_ID = 1001
         private const val MAX_ACCURACY_METERS = 50f
+        private const val MAX_UI_ACCURACY_METERS = 45f
+        private const val MAX_EXPLORATION_ACCURACY_METERS = 30f
+        private const val MAX_UI_SPEED_MPS = 25f
+        private const val MAX_EXPLORATION_SPEED_MPS = 12f
         private const val UPDATE_INTERVAL_MS = 3000L
         private const val UPDATE_MIN_DISTANCE_METERS = 1f
+        private const val ALLOWED_TIME_BACKSTEP_MS = 1000L
+        private const val GPS_PREFERENCE_WINDOW_MS = 8000L
+        private const val NETWORK_STALE_GRACE_MS = 1000L
+        private const val NETWORK_MUST_BE_BETTER_FACTOR = 0.75f
+        private const val JUMP_DISTANCE_TOLERANCE_METERS = 5f
+        private const val UI_SMOOTH_ALPHA = 0.35
+        private const val UI_SMOOTH_FAST_ALPHA = 0.6
+        private const val UI_SMOOTH_FAST_DISTANCE_METERS = 20f
 
         /** True while the service is actively tracking location. */
         @Volatile

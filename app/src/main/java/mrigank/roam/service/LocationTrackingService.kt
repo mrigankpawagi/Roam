@@ -231,7 +231,7 @@ class LocationTrackingService : Service() {
         if (previous.provider == LocationManager.GPS_PROVIDER &&
             location.provider == LocationManager.NETWORK_PROVIDER &&
             dtMs < GPS_PREFERENCE_WINDOW_MS &&
-            location.accuracy >= previous.accuracy * NETWORK_MUST_BE_BETTER_FACTOR
+            location.accuracy >= previous.accuracy * NETWORK_ACCURACY_IMPROVEMENT_FACTOR
         ) {
             return false
         }
@@ -310,7 +310,7 @@ class LocationTrackingService : Service() {
         private const val ALLOWED_TIME_BACKSTEP_MS = 1000L
         private const val GPS_PREFERENCE_WINDOW_MS = 8000L
         private const val NETWORK_STALE_GRACE_MS = 1000L
-        private const val NETWORK_MUST_BE_BETTER_FACTOR = 0.75f
+        private const val NETWORK_ACCURACY_IMPROVEMENT_FACTOR = 0.75f
         private const val JUMP_DISTANCE_TOLERANCE_METERS = 5f
         private const val UI_SMOOTH_ALPHA = 0.35
         private const val UI_SMOOTH_FAST_ALPHA = 0.6

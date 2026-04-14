@@ -315,7 +315,7 @@ class LocationTrackingService : Service() {
         private const val NETWORK_STALE_GRACE_MS = 1000L
         private const val NETWORK_ACCURACY_IMPROVEMENT_FACTOR = 0.75f
         private const val JUMP_DISTANCE_TOLERANCE_METERS = 5f
-        private const val UI_SMOOTH_ALPHA = 0.35 // 35% new fix, 65% previous smoothed fix.
+        private const val UI_SMOOTH_ALPHA = 0.35 // Move 35% of the delta toward each new fix.
         private const val UI_SMOOTH_FAST_ALPHA = 0.6 // Faster convergence for larger movement.
         private const val UI_SMOOTH_FAST_DISTANCE_METERS = 20f
 

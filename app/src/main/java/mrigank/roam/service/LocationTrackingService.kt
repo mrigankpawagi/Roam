@@ -41,8 +41,30 @@ class LocationTrackingService : Service() {
 
         @Suppress("DEPRECATION")
         override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-        override fun onProviderEnabled(provider: String) {}
-        override fun onProviderDisabled(provider: String) {}
+
+        @Suppress("MissingPermission")
+        override fun onProviderEnabled(provider: String) {
+            // Register for updates from a provider that became available after the service started.
+            if (provider == LocationManager.GPS_PROVIDER || provider == LocationManager.NETWORK_PROVIDER) {
+                try {
+                    locationManager?.requestLocationUpdates(
+                        provider, UPDATE_INTERVAL_MS, UPDATE_MIN_DISTANCE_METERS, locationListener
+                    )
+                } catch (e: SecurityException) {
+                    // Permission revoked; nothing to do.
+                }
+            }
+        }
+
+        override fun onProviderDisabled(provider: String) {
+            // Stop the service if no location provider is left.
+            val anyEnabled =
+                locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) == true ||
+                locationManager?.isProviderEnabled(LocationManager.NETWORK_PROVIDER) == true
+            if (!anyEnabled) {
+                stopTracking()
+            }
+        }
     }
 
     override fun onCreate() {
@@ -110,7 +132,7 @@ class LocationTrackingService : Service() {
             for (provider in providers) {
                 if (locationManager?.isProviderEnabled(provider) == true) {
                     locationManager?.requestLocationUpdates(
-                        provider, 3000L, 1f, locationListener
+                        provider, UPDATE_INTERVAL_MS, UPDATE_MIN_DISTANCE_METERS, locationListener
                     )
                     started = true
                 }
@@ -150,7 +172,10 @@ class LocationTrackingService : Service() {
     private fun stopTracking() {
         isRunning = false
         locationManager?.removeUpdates(locationListener)
-        serviceScope.cancel()
+        // Do NOT cancel serviceScope here — in-flight coroutines launched from
+        // handleLocationUpdate just before removeUpdates() must be allowed to finish
+        // their DB writes.  The scope is cancelled in onDestroy() once the service
+        // is fully stopped.
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
@@ -175,6 +200,8 @@ class LocationTrackingService : Service() {
         const val EXTRA_LNG = "extra_lng"
         private const val NOTIFICATION_ID = 1001
         private const val MAX_ACCURACY_METERS = 50f
+        private const val UPDATE_INTERVAL_MS = 3000L
+        private const val UPDATE_MIN_DISTANCE_METERS = 1f
 
         /** True while the service is actively tracking location. */
         @Volatile

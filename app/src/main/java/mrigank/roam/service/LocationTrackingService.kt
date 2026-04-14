@@ -1,4 +1,4 @@
-package com.example.explore.service
+package mrigank.roam.service
 
 import android.app.Notification
 import android.app.NotificationManager
@@ -13,12 +13,12 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.example.explore.ExploreApplication
-import com.example.explore.ExplorationActivity
-import com.example.explore.R
-import com.example.explore.data.ExploredCell
-import com.example.explore.data.ExploreRepository
-import com.example.explore.data.GridUtils
+import mrigank.roam.RoamApplication
+import mrigank.roam.ExplorationActivity
+import mrigank.roam.R
+import mrigank.roam.data.ExploredCell
+import mrigank.roam.data.ExploreRepository
+import mrigank.roam.data.GridUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -92,7 +92,7 @@ class LocationTrackingService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        return NotificationCompat.Builder(this, ExploreApplication.CHANNEL_ID)
+        return NotificationCompat.Builder(this, RoamApplication.CHANNEL_ID)
             .setContentTitle("Exploring $areaName...")
             .setContentText("Tracking your exploration progress")
             .setSmallIcon(R.drawable.ic_notification)
@@ -162,9 +162,9 @@ class LocationTrackingService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     companion object {
-        const val ACTION_START = "com.example.explore.ACTION_START"
-        const val ACTION_STOP = "com.example.explore.ACTION_STOP"
-        const val ACTION_LOCATION_UPDATE = "com.example.explore.ACTION_LOCATION_UPDATE"
+        const val ACTION_START = "in.mrigank.roam.ACTION_START"
+        const val ACTION_STOP = "in.mrigank.roam.ACTION_STOP"
+        const val ACTION_LOCATION_UPDATE = "in.mrigank.roam.ACTION_LOCATION_UPDATE"
         const val EXTRA_AREA_ID = "extra_area_id"
         const val EXTRA_RADIUS_METERS = "extra_radius_meters"
         const val EXTRA_AREA_NAME = "extra_area_name"

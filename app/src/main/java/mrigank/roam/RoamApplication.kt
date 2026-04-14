@@ -1,4 +1,4 @@
-package com.example.explore
+package mrigank.roam
 
 import android.app.Application
 import android.app.NotificationChannel
@@ -6,7 +6,7 @@ import android.app.NotificationManager
 import androidx.preference.PreferenceManager
 import org.osmdroid.config.Configuration
 
-class ExploreApplication : Application() {
+class RoamApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()

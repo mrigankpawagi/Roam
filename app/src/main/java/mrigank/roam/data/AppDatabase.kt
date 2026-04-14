@@ -1,4 +1,4 @@
-package com.example.explore.data
+package mrigank.roam.data
 
 import android.content.Context
 import androidx.room.Database

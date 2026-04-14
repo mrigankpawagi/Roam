@@ -12,7 +12,7 @@
     <string name="clear_all">Clear All</string>
     <string name="undo">Undo</string>
     <string name="close_polygon">Close</string>
-    <string name="add_polygon">+ Polygon</string>
+    <string name="add_polygon">+</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
     <string name="radius_value">Radius: %d m</string>
@@ -31,6 +31,14 @@
     <string name="delete">Delete</string>
     <string name="delete_area_title">Delete Area</string>
     <string name="delete_area_message">Delete \'%s\'? This will also erase all exploration progress for this area.</string>
+    <string name="import_area">Import Area</string>
+    <string name="export_area">Export</string>
+    <string name="export_with_progress">Export with progress</string>
+    <string name="export_without_progress">Export without progress</string>
+    <string name="export_success">Area exported successfully</string>
+    <string name="export_error">Export failed</string>
+    <string name="import_success">Area imported successfully</string>
+    <string name="import_error">Import failed: invalid file</string>
     <string name="pref_radius_title">Exploration Radius</string>
     <string name="pref_radius_summary">Distance in metres to mark cells as explored</string>
 </resources>

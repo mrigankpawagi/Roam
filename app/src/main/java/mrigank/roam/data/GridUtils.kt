@@ -1,4 +1,4 @@
-package com.example.explore.data
+package mrigank.roam.data
 
 import org.json.JSONArray
 import org.json.JSONObject

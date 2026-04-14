@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Explore" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.Roam" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
@@ -12,7 +12,7 @@
         <item name="colorError">@color/colorError</item>
     </style>
 
-    <style name="Theme.Explore.NoActionBar" parent="Theme.Explore">
+    <style name="Theme.Roam.NoActionBar" parent="Theme.Roam">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>

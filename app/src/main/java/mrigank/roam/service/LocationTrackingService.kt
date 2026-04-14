@@ -39,7 +39,7 @@ class LocationTrackingService : Service() {
     private var lastSmoothedUiLocation: Location? = null
     private var latestGpsEventTimeMs: Long = Long.MIN_VALUE
 
-    private val locationListener = object : LocationListener {
+    private val locationListener: LocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
             handleLocationUpdate(location)
         }

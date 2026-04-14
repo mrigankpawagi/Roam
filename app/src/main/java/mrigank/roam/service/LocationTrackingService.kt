@@ -113,7 +113,6 @@ class LocationTrackingService : Service() {
                         provider, 3000L, 1f, locationListener
                     )
                     started = true
-                    break
                 }
             }
             if (!started) {
@@ -125,6 +124,10 @@ class LocationTrackingService : Service() {
     }
 
     private fun handleLocationUpdate(location: Location) {
+        if (!location.hasAccuracy() || location.accuracy < 0 || location.accuracy > MAX_ACCURACY_METERS) {
+            return
+        }
+
         val broadcastIntent = Intent(ACTION_LOCATION_UPDATE).apply {
             putExtra(EXTRA_LAT, location.latitude)
             putExtra(EXTRA_LNG, location.longitude)
@@ -171,6 +174,7 @@ class LocationTrackingService : Service() {
         const val EXTRA_LAT = "extra_lat"
         const val EXTRA_LNG = "extra_lng"
         private const val NOTIFICATION_ID = 1001
+        private const val MAX_ACCURACY_METERS = 50f
 
         /** True while the service is actively tracking location. */
         @Volatile

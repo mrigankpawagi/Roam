@@ -53,7 +53,7 @@ class LocationTrackingService : Service() {
             if (provider == LocationManager.GPS_PROVIDER || provider == LocationManager.NETWORK_PROVIDER) {
                 try {
                     locationManager?.requestLocationUpdates(
-                        provider, UPDATE_INTERVAL_MS, UPDATE_MIN_DISTANCE_METERS, locationListener
+                        provider, UPDATE_INTERVAL_MS, UPDATE_MIN_DISTANCE_METERS, this
                     )
                 } catch (e: SecurityException) {
                     // Permission revoked; nothing to do.

@@ -237,7 +237,7 @@ class LocationTrackingService : Service() {
             return false
         }
 
-        val maxAllowedDistance = maxSpeedMetersPerSecond * (dtMs / 1000f) + JUMP_DISTANCE_TOLERANCE_METERS
+        val maxAllowedDistance = maxSpeedMetersPerSecond * (dtMs / MILLIS_PER_SECOND) + JUMP_DISTANCE_TOLERANCE_METERS
         if (previous.distanceTo(location) > maxAllowedDistance) {
             return false
         }
@@ -267,6 +267,7 @@ class LocationTrackingService : Service() {
         return if (location.elapsedRealtimeNanos > 0L) {
             location.elapsedRealtimeNanos / 1_000_000L
         } else {
+            // Approximate the location's monotonic event time from its wall-clock timestamp.
             val nowWallClockMs = System.currentTimeMillis()
             val ageMs = (nowWallClockMs - location.time).coerceAtLeast(0L)
             (SystemClock.elapsedRealtime() - ageMs).coerceAtLeast(0L)
@@ -315,6 +316,7 @@ class LocationTrackingService : Service() {
         private const val NETWORK_STALE_GRACE_MS = 1000L
         private const val NETWORK_ACCURACY_IMPROVEMENT_FACTOR = 0.75f
         private const val JUMP_DISTANCE_TOLERANCE_METERS = 5f
+        private const val MILLIS_PER_SECOND = 1000f
         private const val UI_SMOOTH_ALPHA = 0.35 // Move 35% of the delta toward each new fix.
         private const val UI_SMOOTH_FAST_ALPHA = 0.6 // Faster convergence for larger movement.
         private const val UI_SMOOTH_FAST_DISTANCE_METERS = 20f

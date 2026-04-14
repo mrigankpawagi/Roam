@@ -29,6 +29,18 @@ class ExplorationViewModel(application: Application) : AndroidViewModel(applicat
     val exploredPercent: LiveData<Float> = _exploredPercent
 
     val isExploring = MutableLiveData(false)
+    val isEraserActive = MutableLiveData(false)
+
+    fun toggleEraser() {
+        isEraserActive.value = isEraserActive.value != true
+    }
+
+    fun deleteCell(row: Int, col: Int) {
+        val id = _areaId.value ?: return
+        viewModelScope.launch {
+            repository.deleteCell(id, row, col)
+        }
+    }
 
     fun loadArea(areaId: Long) {
         _areaId.value = areaId

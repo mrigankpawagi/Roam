@@ -33,6 +33,9 @@ class ExploreRepository(context: Context) {
 
     suspend fun deleteAllCellsForArea(areaId: Long) = exploredCellDao.deleteAllForArea(areaId)
 
+    suspend fun deleteCell(areaId: Long, row: Int, col: Int) =
+        exploredCellDao.deleteCell(areaId, row, col)
+
     suspend fun getExploredPercent(area: Area): Float {
         val polygons = GridUtils.parsePolygons(area.polygonsJson)
         val rows = GridUtils.numRows(area)

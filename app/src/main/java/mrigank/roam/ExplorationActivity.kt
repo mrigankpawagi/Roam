@@ -13,6 +13,7 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.os.Bundle
+import android.view.MotionEvent
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -39,6 +40,7 @@ class ExplorationActivity : AppCompatActivity() {
     private var fogOverlay: FogOfWarOverlay? = null
     private var currentLocationOverlay: CurrentLocationOverlay? = null
     private var areaBoundingBoxOverlay: Polygon? = null
+    private var eraserOverlay: EraserOverlay? = null
 
     private val locationReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -97,6 +99,10 @@ class ExplorationActivity : AppCompatActivity() {
             }
         }
 
+        binding.buttonEraser.setOnClickListener {
+            viewModel.toggleEraser()
+        }
+
         viewModel.area.observe(this) { area ->
             area ?: return@observe
 
@@ -108,10 +114,15 @@ class ExplorationActivity : AppCompatActivity() {
             // 2. Area boundary polygon (drawn on top of fog so it stays visible)
             setupAreaOverlay(area)
 
-            // 3. Current location dot (topmost overlay)
+            // 3. Current location dot
             val locOverlay = CurrentLocationOverlay()
             currentLocationOverlay = locOverlay
             binding.mapView.overlays.add(locOverlay)
+
+            // 4. Eraser overlay (topmost, captures touch events when active)
+            val eraser = EraserOverlay()
+            eraserOverlay = eraser
+            binding.mapView.overlays.add(eraser)
 
             // Immediately seed with any cells that were already emitted before this
             // observer ran — this restores the overlay after the user navigates back.
@@ -140,6 +151,12 @@ class ExplorationActivity : AppCompatActivity() {
         viewModel.isExploring.observe(this) { isExploring ->
             binding.buttonStartStop.text =
                 if (isExploring) getString(R.string.stop) else getString(R.string.start)
+        }
+
+        viewModel.isEraserActive.observe(this) { active ->
+            binding.buttonEraser.text =
+                if (active) getString(R.string.eraser_active) else getString(R.string.eraser)
+            binding.buttonEraser.isSelected = active
         }
     }
 
@@ -352,6 +369,35 @@ class ExplorationActivity : AppCompatActivity() {
             val point = mapView.projection.toPixels(GeoPoint(lat, lng), null)
             canvas.drawCircle(point.x.toFloat(), point.y.toFloat(), 22f, strokePaint)
             canvas.drawCircle(point.x.toFloat(), point.y.toFloat(), 16f, fillPaint)
+        }
+    }
+
+    /**
+     * Invisible overlay that intercepts touch events when the eraser mode is active.
+     * Tapping or dragging over explored cells removes them from the database, restoring the fog.
+     */
+    inner class EraserOverlay : Overlay() {
+
+        override fun onTouchEvent(event: MotionEvent, mapView: MapView): Boolean {
+            if (viewModel.isEraserActive.value != true) return false
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                    val geoPoint = mapView.projection.fromPixels(
+                        event.x.toInt(), event.y.toInt()
+                    ) as GeoPoint
+                    eraseAtPoint(geoPoint.latitude, geoPoint.longitude)
+                    return true
+                }
+            }
+            return false
+        }
+
+        private fun eraseAtPoint(lat: Double, lng: Double) {
+            val area = viewModel.area.value ?: return
+            val cell = GridUtils.cellForPoint(area, lat, lng) ?: return
+            if (fogOverlay?.cells?.contains(cell) == true) {
+                viewModel.deleteCell(cell.first, cell.second)
+            }
         }
     }
 

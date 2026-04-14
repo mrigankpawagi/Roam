@@ -21,6 +21,9 @@ interface ExploredCellDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertCells(cells: List<ExploredCell>)
 
+    @Query("DELETE FROM explored_cells WHERE areaId = :areaId AND cellRow = :row AND cellCol = :col")
+    suspend fun deleteCell(areaId: Long, row: Int, col: Int)
+
     @Query("DELETE FROM explored_cells WHERE areaId = :areaId")
     suspend fun deleteAllForArea(areaId: Long)
 }

@@ -2,6 +2,7 @@ package mrigank.roam
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.PopupMenu
@@ -177,7 +178,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 b.buttonOverflow.setOnClickListener { anchor ->
-                    val popup = PopupMenu(this@MainActivity, anchor)
+                    val popup = PopupMenu(
+                        ContextThemeWrapper(this@MainActivity, R.style.PopupMenuBlackText),
+                        anchor
+                    )
                     popup.menu.add(0, MENU_EDIT, 0, R.string.edit_area)
                     popup.menu.add(0, MENU_RADIUS, 1, R.string.set_radius)
                     popup.menu.add(0, MENU_EXPORT, 2, R.string.export_area)

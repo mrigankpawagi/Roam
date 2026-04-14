@@ -164,7 +164,7 @@ class ExplorationActivity : AppCompatActivity() {
                 val polygon = Polygon(binding.mapView).apply {
                     points = pts
                     fillPaint.color = 0x00000000 // transparent fill — fog handles the area tint
-                    outlinePaint.color = 0xFF2196F3.toInt()
+                    outlinePaint.color = ContextCompat.getColor(this@ExplorationActivity, R.color.area_outline_color)
                     outlinePaint.strokeWidth = 4f
                 }
                 binding.mapView.overlays.add(polygon)
@@ -180,7 +180,7 @@ class ExplorationActivity : AppCompatActivity() {
                     GeoPoint(area.minLat, area.minLng)
                 )
                 fillPaint.color = 0x00000000 // transparent fill
-                outlinePaint.color = 0xFF2196F3.toInt()
+                outlinePaint.color = ContextCompat.getColor(this@ExplorationActivity, R.color.area_outline_color)
                 outlinePaint.strokeWidth = 4f
             }
             areaBoundingBoxOverlay = polygon
@@ -294,14 +294,8 @@ class ExplorationActivity : AppCompatActivity() {
             // Clear the bitmap to fully transparent
             bmpCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
 
-            // Fill the area bounding box with dark fog
-            val topLeft = projection.toPixels(GeoPoint(area.maxLat, area.minLng), null)
-            val bottomRight = projection.toPixels(GeoPoint(area.minLat, area.maxLng), null)
-            bmpCanvas.drawRect(
-                topLeft.x.toFloat(), topLeft.y.toFloat(),
-                bottomRight.x.toFloat(), bottomRight.y.toFloat(),
-                fogPaint
-            )
+            // Fill the entire canvas with dark fog
+            bmpCanvas.drawPaint(fogPaint)
 
             // Punch holes in the fog for explored cells
             if (cells.isNotEmpty()) {
@@ -337,7 +331,7 @@ class ExplorationActivity : AppCompatActivity() {
         private var lng = 0.0
 
         private val fillPaint = Paint().apply {
-            color = 0xFF2196F3.toInt()
+            color = ContextCompat.getColor(this@ExplorationActivity, R.color.location_dot_color)
             style = Paint.Style.FILL
             isAntiAlias = true
         }

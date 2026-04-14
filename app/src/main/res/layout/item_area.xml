@@ -7,7 +7,7 @@
     android:layout_marginHorizontal="4dp"
     android:layout_marginVertical="4dp"
     android:foreground="?attr/selectableItemBackground"
-    app:cardBackgroundColor="@color/colorSurface"
+    app:cardBackgroundColor="@android:color/white"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp">
 
@@ -49,6 +49,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/more_options"
                 android:src="@drawable/ic_more_vert"
+                android:tint="@android:color/black"
                 android:padding="4dp" />
 
         </LinearLayout>
@@ -60,7 +61,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:max="100"
-            android:progress="0" />
+            android:progress="0"
+            android:progressTint="@color/colorPrimary"
+            android:progressBackgroundTint="#40000000"
+            android:progressBackgroundTintMode="src_atop"
+            android:progressTintMode="src_in" />
 
     </LinearLayout>
 

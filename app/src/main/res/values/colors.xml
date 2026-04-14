@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#FF1976D2</color>
-    <color name="colorPrimaryVariant">#FF1565C0</color>
+    <color name="colorPrimary">#FF2E7D32</color>
+    <color name="colorPrimaryVariant">#FF1B5E20</color>
     <color name="colorOnPrimary">#FFFFFFFF</color>
-    <color name="colorSecondary">#FF03DAC5</color>
+    <color name="colorSecondary">#FF8BC34A</color>
     <color name="colorOnSecondary">#FF000000</color>
     <color name="colorSurface">#FFFFFFFF</color>
     <color name="colorOnSurface">#FF000000</color>
@@ -13,8 +13,8 @@
     <color name="white">#FFFFFFFF</color>
     <!-- Explored cell overlay: semi-transparent green (alpha ~120) -->
     <color name="explored_cell_color">#784CAF50</color>
-    <!-- Area bounding box outline: blue -->
-    <color name="area_outline_color">#FF2196F3</color>
-    <!-- Current location dot: blue -->
-    <color name="location_dot_color">#FF2196F3</color>
+    <!-- Area bounding box outline: green -->
+    <color name="area_outline_color">#FF2E7D32</color>
+    <!-- Current location dot: green -->
+    <color name="location_dot_color">#FF2E7D32</color>
 </resources>

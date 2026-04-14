@@ -22,6 +22,8 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // Signed with the debug keystore so CI-built APKs can be sideloaded.
+            // This is intentional for open-source distribution; not suitable for Play Store publishing.
             signingConfig signingConfigs.debug
         }
     }

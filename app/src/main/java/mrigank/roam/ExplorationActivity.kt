@@ -294,14 +294,8 @@ class ExplorationActivity : AppCompatActivity() {
             // Clear the bitmap to fully transparent
             bmpCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
 
-            // Fill the area bounding box with dark fog
-            val topLeft = projection.toPixels(GeoPoint(area.maxLat, area.minLng), null)
-            val bottomRight = projection.toPixels(GeoPoint(area.minLat, area.maxLng), null)
-            bmpCanvas.drawRect(
-                topLeft.x.toFloat(), topLeft.y.toFloat(),
-                bottomRight.x.toFloat(), bottomRight.y.toFloat(),
-                fogPaint
-            )
+            // Fill the entire canvas with dark fog
+            bmpCanvas.drawPaint(fogPaint)
 
             // Punch holes in the fog for explored cells
             if (cells.isNotEmpty()) {

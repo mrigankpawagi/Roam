@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace 'in.mrigank.roam'
+    namespace 'mrigank.roam'
     compileSdk 34
 
     defaultConfig {

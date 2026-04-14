@@ -1,4 +1,4 @@
-package in.mrigank.roam.service
+package mrigank.roam.service
 
 import android.app.Notification
 import android.app.NotificationManager
@@ -13,12 +13,12 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import in.mrigank.roam.RoamApplication
-import in.mrigank.roam.ExplorationActivity
-import in.mrigank.roam.R
-import in.mrigank.roam.data.ExploredCell
-import in.mrigank.roam.data.ExploreRepository
-import in.mrigank.roam.data.GridUtils
+import mrigank.roam.RoamApplication
+import mrigank.roam.ExplorationActivity
+import mrigank.roam.R
+import mrigank.roam.data.ExploredCell
+import mrigank.roam.data.ExploreRepository
+import mrigank.roam.data.GridUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

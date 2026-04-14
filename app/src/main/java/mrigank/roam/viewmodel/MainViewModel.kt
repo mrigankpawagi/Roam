@@ -1,12 +1,12 @@
-package in.mrigank.roam.viewmodel
+package mrigank.roam.viewmodel
 
 import android.app.Application
 import android.content.ContentResolver
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import in.mrigank.roam.data.Area
-import in.mrigank.roam.data.ExploreRepository
+import mrigank.roam.data.Area
+import mrigank.roam.data.ExploreRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

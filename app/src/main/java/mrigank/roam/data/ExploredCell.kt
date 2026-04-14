@@ -1,4 +1,4 @@
-package in.mrigank.roam.data
+package mrigank.roam.data
 
 import androidx.room.Entity
 import androidx.room.ForeignKey

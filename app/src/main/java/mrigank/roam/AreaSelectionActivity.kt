@@ -1,4 +1,4 @@
-package in.mrigank.roam
+package mrigank.roam
 
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -10,10 +10,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import in.mrigank.roam.data.Area
-import in.mrigank.roam.data.ExploreRepository
-import in.mrigank.roam.data.GridUtils
-import in.mrigank.roam.databinding.ActivityAreaSelectionBinding
+import mrigank.roam.data.Area
+import mrigank.roam.data.ExploreRepository
+import mrigank.roam.data.GridUtils
+import mrigank.roam.databinding.ActivityAreaSelectionBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

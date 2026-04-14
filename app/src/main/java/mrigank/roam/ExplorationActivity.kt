@@ -1,4 +1,4 @@
-package in.mrigank.roam
+package mrigank.roam
 
 import android.Manifest
 import android.content.BroadcastReceiver
@@ -19,11 +19,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import in.mrigank.roam.data.Area
-import in.mrigank.roam.data.GridUtils
-import in.mrigank.roam.databinding.ActivityExplorationBinding
-import in.mrigank.roam.service.LocationTrackingService
-import in.mrigank.roam.viewmodel.ExplorationViewModel
+import mrigank.roam.data.Area
+import mrigank.roam.data.GridUtils
+import mrigank.roam.databinding.ActivityExplorationBinding
+import mrigank.roam.service.LocationTrackingService
+import mrigank.roam.viewmodel.ExplorationViewModel
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint

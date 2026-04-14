@@ -1,4 +1,4 @@
-package in.mrigank.roam
+package mrigank.roam
 
 import android.app.Application
 import android.app.NotificationChannel

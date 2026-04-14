@@ -1,4 +1,4 @@
-package in.mrigank.roam.data
+package mrigank.roam.data
 
 import org.json.JSONArray
 import org.json.JSONObject

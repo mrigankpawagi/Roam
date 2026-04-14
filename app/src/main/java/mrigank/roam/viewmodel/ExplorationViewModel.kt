@@ -1,4 +1,4 @@
-package in.mrigank.roam.viewmodel
+package mrigank.roam.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -6,10 +6,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
-import in.mrigank.roam.data.Area
-import in.mrigank.roam.data.ExploredCell
-import in.mrigank.roam.data.ExploreRepository
-import in.mrigank.roam.data.GridUtils
+import mrigank.roam.data.Area
+import mrigank.roam.data.ExploredCell
+import mrigank.roam.data.ExploreRepository
+import mrigank.roam.data.GridUtils
 import kotlinx.coroutines.launch
 
 class ExplorationViewModel(application: Application) : AndroidViewModel(application) {

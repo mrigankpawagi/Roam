@@ -40,23 +40,29 @@
         android:paddingVertical="8dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabImport"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:layout_marginBottom="84dp"
-        android:contentDescription="@string/import_area"
-        app:srcCompat="@drawable/ic_file_import" />
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:contentDescription="@string/add_area"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabImport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="@string/import_area"
+            app:srcCompat="@drawable/ic_file_import" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/add_area"
+            app:srcCompat="@android:drawable/ic_input_add" />
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

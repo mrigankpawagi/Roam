@@ -29,6 +29,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:textColor="@color/colorOnSurface"
                 android:text="Area Name" />
 
             <TextView
@@ -37,6 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                android:textColor="@color/colorOnSurface"
                 android:text="0%" />
 
             <ImageButton

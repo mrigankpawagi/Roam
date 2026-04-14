@@ -12,7 +12,7 @@
     <string name="clear_all">Clear All</string>
     <string name="undo">Undo</string>
     <string name="close_polygon">Close</string>
-    <string name="add_polygon">+ Polygon</string>
+    <string name="add_polygon">+</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
     <string name="radius_value">Radius: %d m</string>

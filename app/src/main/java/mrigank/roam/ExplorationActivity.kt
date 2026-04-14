@@ -146,6 +146,9 @@ class ExplorationActivity : AppCompatActivity() {
     private fun setupMap() {
         binding.mapView.setTileSource(TileSourceFactory.MAPNIK)
         binding.mapView.setMultiTouchControls(true)
+        binding.mapView.zoomController.setVisibility(
+            org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER
+        )
         binding.mapView.controller.setZoom(17.0)
     }
 

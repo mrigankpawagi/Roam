@@ -11,6 +11,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.IBinder
+import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import mrigank.roam.RoamApplication
@@ -266,7 +267,9 @@ class LocationTrackingService : Service() {
         return if (location.elapsedRealtimeNanos > 0L) {
             location.elapsedRealtimeNanos / 1_000_000L
         } else {
-            location.time
+            val nowWallClockMs = System.currentTimeMillis()
+            val ageMs = (nowWallClockMs - location.time).coerceAtLeast(0L)
+            (SystemClock.elapsedRealtime() - ageMs).coerceAtLeast(0L)
         }
     }
 
@@ -312,8 +315,8 @@ class LocationTrackingService : Service() {
         private const val NETWORK_STALE_GRACE_MS = 1000L
         private const val NETWORK_ACCURACY_IMPROVEMENT_FACTOR = 0.75f
         private const val JUMP_DISTANCE_TOLERANCE_METERS = 5f
-        private const val UI_SMOOTH_ALPHA = 0.35
-        private const val UI_SMOOTH_FAST_ALPHA = 0.6
+        private const val UI_SMOOTH_ALPHA = 0.35 // 35% new fix, 65% previous smoothed fix.
+        private const val UI_SMOOTH_FAST_ALPHA = 0.6 // Faster convergence for larger movement.
         private const val UI_SMOOTH_FAST_DISTANCE_METERS = 20f
 
         /** True while the service is actively tracking location. */

@@ -164,7 +164,7 @@ class ExplorationActivity : AppCompatActivity() {
                 val polygon = Polygon(binding.mapView).apply {
                     points = pts
                     fillPaint.color = 0x00000000 // transparent fill — fog handles the area tint
-                    outlinePaint.color = 0xFF2196F3.toInt()
+                    outlinePaint.color = 0xFF2E7D32.toInt()
                     outlinePaint.strokeWidth = 4f
                 }
                 binding.mapView.overlays.add(polygon)
@@ -180,7 +180,7 @@ class ExplorationActivity : AppCompatActivity() {
                     GeoPoint(area.minLat, area.minLng)
                 )
                 fillPaint.color = 0x00000000 // transparent fill
-                outlinePaint.color = 0xFF2196F3.toInt()
+                outlinePaint.color = 0xFF2E7D32.toInt()
                 outlinePaint.strokeWidth = 4f
             }
             areaBoundingBoxOverlay = polygon
@@ -331,7 +331,7 @@ class ExplorationActivity : AppCompatActivity() {
         private var lng = 0.0
 
         private val fillPaint = Paint().apply {
-            color = 0xFF2196F3.toInt()
+            color = 0xFF2E7D32.toInt()
             style = Paint.Style.FILL
             isAntiAlias = true
         }

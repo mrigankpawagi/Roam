@@ -49,6 +49,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/more_options"
                 android:src="@drawable/ic_more_vert"
+                android:imageTintList="@color/colorOnSurface"
                 android:padding="4dp" />
 
         </LinearLayout>

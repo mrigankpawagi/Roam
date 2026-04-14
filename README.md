@@ -25,7 +25,7 @@ Roam is also proudly **vibe-coded**.
 
 ---
 
-## ✅ Features (Detailed)
+## ✅ Features
 
 ### Area creation and editing
 - Draw one or more polygons directly on the map (supports disjoint shapes)

@@ -11,6 +11,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.IBinder
+import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import mrigank.roam.RoamApplication
@@ -33,6 +34,10 @@ class LocationTrackingService : Service() {
     private var radiusMeters: Double = 5.0
     private var areaName: String = "Area"
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private var lastUiAcceptedLocation: Location? = null
+    private var lastExplorationAcceptedLocation: Location? = null
+    private var lastSmoothedUiLocation: Location? = null
+    private var latestGpsEventTimeMs: Long = Long.MIN_VALUE
 
     private val locationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
@@ -41,8 +46,30 @@ class LocationTrackingService : Service() {
 
         @Suppress("DEPRECATION")
         override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-        override fun onProviderEnabled(provider: String) {}
-        override fun onProviderDisabled(provider: String) {}
+
+        @Suppress("MissingPermission")
+        override fun onProviderEnabled(provider: String) {
+            // Register for updates from a provider that became available after the service started.
+            if (provider == LocationManager.GPS_PROVIDER || provider == LocationManager.NETWORK_PROVIDER) {
+                try {
+                    locationManager?.requestLocationUpdates(
+                        provider, UPDATE_INTERVAL_MS, UPDATE_MIN_DISTANCE_METERS, locationListener
+                    )
+                } catch (e: SecurityException) {
+                    // Permission revoked; nothing to do.
+                }
+            }
+        }
+
+        override fun onProviderDisabled(provider: String) {
+            // Stop the service if no location provider is left.
+            val anyEnabled =
+                locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) == true ||
+                locationManager?.isProviderEnabled(LocationManager.NETWORK_PROVIDER) == true
+            if (!anyEnabled) {
+                stopTracking()
+            }
+        }
     }
 
     override fun onCreate() {
@@ -110,7 +137,7 @@ class LocationTrackingService : Service() {
             for (provider in providers) {
                 if (locationManager?.isProviderEnabled(provider) == true) {
                     locationManager?.requestLocationUpdates(
-                        provider, 3000L, 1f, locationListener
+                        provider, UPDATE_INTERVAL_MS, UPDATE_MIN_DISTANCE_METERS, locationListener
                     )
                     started = true
                 }
@@ -128,12 +155,37 @@ class LocationTrackingService : Service() {
             return
         }
 
-        val broadcastIntent = Intent(ACTION_LOCATION_UPDATE).apply {
-            putExtra(EXTRA_LAT, location.latitude)
-            putExtra(EXTRA_LNG, location.longitude)
-            putExtra(EXTRA_AREA_ID, areaId)
+        if (location.provider == LocationManager.GPS_PROVIDER) {
+            latestGpsEventTimeMs = maxOf(latestGpsEventTimeMs, locationEventTimeMs(location))
         }
-        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+
+        if (shouldAcceptLocation(
+                location = location,
+                lastAccepted = lastUiAcceptedLocation,
+                maxAccuracyMeters = MAX_UI_ACCURACY_METERS,
+                maxSpeedMetersPerSecond = MAX_UI_SPEED_MPS
+            )
+        ) {
+            val smoothedLocation = smoothUiLocation(location)
+            val broadcastIntent = Intent(ACTION_LOCATION_UPDATE).apply {
+                putExtra(EXTRA_LAT, smoothedLocation.latitude)
+                putExtra(EXTRA_LNG, smoothedLocation.longitude)
+                putExtra(EXTRA_AREA_ID, areaId)
+            }
+            LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+            lastUiAcceptedLocation = Location(location)
+        }
+
+        if (!shouldAcceptLocation(
+                location = location,
+                lastAccepted = lastExplorationAcceptedLocation,
+                maxAccuracyMeters = MAX_EXPLORATION_ACCURACY_METERS,
+                maxSpeedMetersPerSecond = MAX_EXPLORATION_SPEED_MPS
+            )
+        ) {
+            return
+        }
+        lastExplorationAcceptedLocation = Location(location)
 
         serviceScope.launch {
             val area = repository?.getAreaById(areaId) ?: return@launch
@@ -147,10 +199,88 @@ class LocationTrackingService : Service() {
         }
     }
 
+    private fun shouldAcceptLocation(
+        location: Location,
+        lastAccepted: Location?,
+        maxAccuracyMeters: Float,
+        maxSpeedMetersPerSecond: Float
+    ): Boolean {
+        if (!location.hasAccuracy() || location.accuracy < 0f || location.accuracy > maxAccuracyMeters) {
+            return false
+        }
+
+        val eventTimeMs = locationEventTimeMs(location)
+
+        if (location.provider == LocationManager.NETWORK_PROVIDER &&
+            latestGpsEventTimeMs != Long.MIN_VALUE &&
+            eventTimeMs + NETWORK_STALE_GRACE_MS < latestGpsEventTimeMs
+        ) {
+            return false
+        }
+
+        val previous = lastAccepted ?: return true
+        val previousTimeMs = locationEventTimeMs(previous)
+        val dtMs = eventTimeMs - previousTimeMs
+
+        if (dtMs < -ALLOWED_TIME_BACKSTEP_MS) {
+            return false
+        }
+        if (dtMs <= 0) {
+            return location.accuracy < previous.accuracy
+        }
+
+        if (previous.provider == LocationManager.GPS_PROVIDER &&
+            location.provider == LocationManager.NETWORK_PROVIDER &&
+            dtMs < GPS_PREFERENCE_WINDOW_MS &&
+            location.accuracy >= previous.accuracy * NETWORK_ACCURACY_IMPROVEMENT_FACTOR
+        ) {
+            return false
+        }
+
+        val maxAllowedDistance = maxSpeedMetersPerSecond * (dtMs / MILLIS_PER_SECOND) + JUMP_DISTANCE_TOLERANCE_METERS
+        if (previous.distanceTo(location) > maxAllowedDistance) {
+            return false
+        }
+
+        return true
+    }
+
+    private fun smoothUiLocation(location: Location): Location {
+        val previousSmoothed = lastSmoothedUiLocation
+        if (previousSmoothed == null) {
+            val first = Location(location)
+            lastSmoothedUiLocation = first
+            return first
+        }
+
+        val distanceMeters = previousSmoothed.distanceTo(location)
+        val alpha = if (distanceMeters >= UI_SMOOTH_FAST_DISTANCE_METERS) UI_SMOOTH_FAST_ALPHA else UI_SMOOTH_ALPHA
+        val smoothed = Location(location).apply {
+            latitude = previousSmoothed.latitude + (location.latitude - previousSmoothed.latitude) * alpha
+            longitude = previousSmoothed.longitude + (location.longitude - previousSmoothed.longitude) * alpha
+        }
+        lastSmoothedUiLocation = smoothed
+        return smoothed
+    }
+
+    private fun locationEventTimeMs(location: Location): Long {
+        return if (location.elapsedRealtimeNanos > 0L) {
+            location.elapsedRealtimeNanos / 1_000_000L
+        } else {
+            // Approximate the location's monotonic event time from its wall-clock timestamp.
+            val nowWallClockMs = System.currentTimeMillis()
+            val ageMs = (nowWallClockMs - location.time).coerceAtLeast(0L)
+            (SystemClock.elapsedRealtime() - ageMs).coerceAtLeast(0L)
+        }
+    }
+
     private fun stopTracking() {
         isRunning = false
         locationManager?.removeUpdates(locationListener)
-        serviceScope.cancel()
+        // Do NOT cancel serviceScope here — in-flight coroutines launched from
+        // handleLocationUpdate just before removeUpdates() must be allowed to finish
+        // their DB writes.  The scope is cancelled in onDestroy() once the service
+        // is fully stopped.
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
@@ -175,6 +305,21 @@ class LocationTrackingService : Service() {
         const val EXTRA_LNG = "extra_lng"
         private const val NOTIFICATION_ID = 1001
         private const val MAX_ACCURACY_METERS = 50f
+        private const val MAX_UI_ACCURACY_METERS = 45f
+        private const val MAX_EXPLORATION_ACCURACY_METERS = 30f
+        private const val MAX_UI_SPEED_MPS = 25f
+        private const val MAX_EXPLORATION_SPEED_MPS = 12f
+        private const val UPDATE_INTERVAL_MS = 3000L
+        private const val UPDATE_MIN_DISTANCE_METERS = 1f
+        private const val ALLOWED_TIME_BACKSTEP_MS = 1000L
+        private const val GPS_PREFERENCE_WINDOW_MS = 8000L
+        private const val NETWORK_STALE_GRACE_MS = 1000L
+        private const val NETWORK_ACCURACY_IMPROVEMENT_FACTOR = 0.75f
+        private const val JUMP_DISTANCE_TOLERANCE_METERS = 5f
+        private const val MILLIS_PER_SECOND = 1000f
+        private const val UI_SMOOTH_ALPHA = 0.35 // Move 35% of the delta toward each new fix.
+        private const val UI_SMOOTH_FAST_ALPHA = 0.6 // Faster convergence for larger movement.
+        private const val UI_SMOOTH_FAST_DISTANCE_METERS = 20f
 
         /** True while the service is actively tracking location. */
         @Volatile

@@ -43,4 +43,5 @@
     <string name="pref_radius_summary">Distance in metres to mark cells as explored</string>
     <string name="eraser">Eraser</string>
     <string name="eraser_active">Erasing…</string>
+    <string name="action_enable_eraser">Enable Eraser</string>
 </resources>

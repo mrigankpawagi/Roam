@@ -45,6 +45,12 @@ Roam is also proudly **vibe-coded**.
 - Import shared area files into your app
 - Useful for friend groups, clubs, and campus challenges
 
+### Eraser tool
+- Enable the eraser from the main screen's overflow menu (**Enable Eraser**)
+- While exploring, tap the **Eraser** button to activate eraser mode
+- Tap or drag over explored cells to un-explore them, restoring the fog
+- Useful for correcting accidental over-exploration or resetting specific zones
+
 ### Area management
 - Quick access to edit, set radius, export, and delete from area list actions
 - Deleting an area also removes its tracked progress for that area
@@ -82,7 +88,13 @@ Roam is also proudly **vibe-coded**.
 - Lower radius = finer granularity, harder challenge
 - Higher radius = faster progress, easier challenge
 
-### 4) Share with friends
+### 4) Erase explored cells
+- Enable the eraser: main screen overflow menu → **Enable Eraser**
+- Open an area and tap **Eraser** to enter eraser mode
+- Tap or drag on the map to un-explore cells and restore the fog
+- Tap **Eraser** again (or press **Stop**) to exit eraser mode
+
+### 5) Share with friends
 - Area menu → **Export**
 - Choose with/without progress
 - Send JSON file to friends

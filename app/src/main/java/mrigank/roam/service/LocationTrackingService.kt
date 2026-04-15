@@ -306,9 +306,9 @@ class LocationTrackingService : Service() {
         private const val NOTIFICATION_ID = 1001
         private const val MAX_ACCURACY_METERS = 50f
         private const val MAX_UI_ACCURACY_METERS = 45f
-        private const val MAX_EXPLORATION_ACCURACY_METERS = 30f
-        private const val MAX_UI_SPEED_MPS = 25f
-        private const val MAX_EXPLORATION_SPEED_MPS = 12f
+        private const val MAX_EXPLORATION_ACCURACY_METERS = 20f
+        private const val MAX_UI_SPEED_MPS = 15f
+        private const val MAX_EXPLORATION_SPEED_MPS = 5f
         private const val UPDATE_INTERVAL_MS = 3000L
         private const val UPDATE_MIN_DISTANCE_METERS = 1f
         private const val ALLOWED_TIME_BACKSTEP_MS = 1000L

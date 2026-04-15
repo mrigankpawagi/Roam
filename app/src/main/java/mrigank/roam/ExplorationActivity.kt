@@ -20,6 +20,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.preference.PreferenceManager
 import mrigank.roam.data.Area
 import mrigank.roam.data.GridUtils
 import mrigank.roam.databinding.ActivityExplorationBinding
@@ -130,6 +131,9 @@ class ExplorationActivity : AppCompatActivity() {
                 fog.cells = cells.map { Pair(it.cellRow, it.cellCol) }.toSet()
                 binding.mapView.invalidate()
             }
+
+            // Compute the initial explored percentage now that the area is known
+            viewModel.updateExploredPercent()
 
             val bb = BoundingBox(area.maxLat, area.maxLng, area.minLat, area.minLng)
             binding.mapView.post {
@@ -254,9 +258,20 @@ class ExplorationActivity : AppCompatActivity() {
         viewModel.isExploring.value = false
     }
 
+    private fun updateEraserVisibility() {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val eraserEnabled = prefs.getBoolean(MainActivity.PREF_ERASER_ENABLED, false)
+        binding.buttonEraser.visibility =
+            if (eraserEnabled) android.view.View.VISIBLE else android.view.View.GONE
+        if (!eraserEnabled && viewModel.isEraserActive.value == true) {
+            viewModel.isEraserActive.value = false
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         binding.mapView.onResume()
+        updateEraserVisibility()
     }
 
     override fun onPause() {

@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.SeekBar
@@ -12,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import mrigank.roam.data.Area
@@ -79,6 +82,31 @@ class MainActivity : AppCompatActivity() {
             binding.textEmpty.visibility =
                 if (areas.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        val eraserItem = menu.findItem(R.id.action_toggle_eraser)
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        eraserItem.isChecked = prefs.getBoolean(PREF_ERASER_ENABLED, false)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.action_toggle_eraser) {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+            val newValue = !item.isChecked
+            item.isChecked = newValue
+            prefs.edit().putBoolean(PREF_ERASER_ENABLED, newValue).apply()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh exploration percentages whenever this screen becomes visible again
+        adapter.notifyDataSetChanged()
     }
 
     private fun showDeleteDialog(area: Area) {
@@ -221,5 +249,6 @@ class MainActivity : AppCompatActivity() {
         private const val MENU_RADIUS = 2
         private const val MENU_EXPORT = 3
         private const val MENU_DELETE = 4
+        const val PREF_ERASER_ENABLED = "eraser_enabled"
     }
 }

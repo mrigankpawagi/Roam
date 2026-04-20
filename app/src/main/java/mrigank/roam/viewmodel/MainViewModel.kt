@@ -3,6 +3,7 @@ package mrigank.roam.viewmodel
 import android.app.Application
 import android.content.ContentResolver
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import mrigank.roam.data.Area
@@ -80,5 +81,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
             onResult(success)
         }
+    }
+
+    fun importAreaFromAsset(
+        assetPath: String,
+        onResult: (Boolean) -> Unit
+    ) {
+        viewModelScope.launch {
+            val success = withContext(Dispatchers.IO) {
+                try {
+                    val json = getApplication<Application>().assets.open(assetPath).use { stream ->
+                        stream.bufferedReader().readText()
+                    }
+                    repository.importFromJson(json)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to import area from asset: $assetPath", e)
+                    false
+                }
+            }
+            onResult(success)
+        }
+    }
+
+    companion object {
+        private const val TAG = "MainViewModel"
     }
 }

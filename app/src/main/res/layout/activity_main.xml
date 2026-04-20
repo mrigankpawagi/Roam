@@ -55,12 +55,34 @@
         android:clipToPadding="false">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabLibrary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="@string/pick_from_library"
+            android:visibility="gone"
+            app:fabSize="mini"
+            app:srcCompat="@android:drawable/ic_menu_agenda" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabImport"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
             android:contentDescription="@string/import_area"
+            android:visibility="gone"
+            app:fabSize="mini"
             app:srcCompat="@drawable/ic_file_import" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabCreate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="@string/create_new"
+            android:visibility="gone"
+            app:fabSize="mini"
+            app:srcCompat="@android:drawable/ic_input_add" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"

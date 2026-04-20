@@ -366,7 +366,16 @@ class AreaSelectionActivity : AppCompatActivity() {
                     maxLng = bb.maxLng,
                     polygonsJson = polygonsJson
                 )
-                withContext(Dispatchers.IO) { repository.updateArea(updated) }
+                val geometryChanged = updated.polygonsJson != existing.polygonsJson ||
+                    updated.minLat != existing.minLat || updated.maxLat != existing.maxLat ||
+                    updated.minLng != existing.minLng || updated.maxLng != existing.maxLng
+                withContext(Dispatchers.IO) {
+                    if (geometryChanged) {
+                        repository.updateAreaAndClearExploredCells(updated)
+                    } else {
+                        repository.updateArea(updated)
+                    }
+                }
             } else {
                 val area = Area(
                     name = name,

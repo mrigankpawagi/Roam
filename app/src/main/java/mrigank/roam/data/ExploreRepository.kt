@@ -2,6 +2,7 @@ package mrigank.roam.data
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.room.withTransaction
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -20,6 +21,14 @@ class ExploreRepository(context: Context) {
     suspend fun deleteArea(area: Area) = areaDao.deleteArea(area)
 
     suspend fun updateArea(area: Area) = areaDao.updateArea(area)
+
+    /** Atomically updates the area geometry and discards all previously explored cells. */
+    suspend fun updateAreaAndClearExploredCells(area: Area) {
+        db.withTransaction {
+            areaDao.updateArea(area)
+            exploredCellDao.deleteAllForArea(area.id)
+        }
+    }
 
     fun getExploredCellsForArea(areaId: Long): LiveData<List<ExploredCell>> =
         exploredCellDao.getExploredCellsForArea(areaId)
@@ -53,7 +62,7 @@ class ExploreRepository(context: Context) {
         }
         if (totalCells == 0L) return 0f
         val exploredCount = exploredCellDao.getExploredCellCount(area.id)
-        return exploredCount.toFloat() / totalCells.toFloat() * 100f
+        return (exploredCount.toFloat() / totalCells.toFloat() * 100f).coerceIn(0f, 100f)
     }
 
     suspend fun buildExportJson(area: Area, includeProgress: Boolean): String {
@@ -87,6 +96,8 @@ class ExploreRepository(context: Context) {
 
     suspend fun importFromJson(json: String): Boolean {
         return try {
+            // Parse the entire payload before touching the database so that a malformed
+            // file never leaves a partial area record behind.
             val root = JSONObject(json)
             val areaObj = root.getJSONObject("area")
             val area = Area(
@@ -99,18 +110,22 @@ class ExploreRepository(context: Context) {
                 radiusMeters = areaObj.optDouble("radiusMeters", 5.0),
                 cellSizeMeters = areaObj.optDouble("cellSizeMeters", 5.0)
             )
-            val areaId = insertArea(area)
-            if (root.has("exploredCells")) {
+            val parsedCells: List<Pair<Int, Int>> = if (root.has("exploredCells")) {
                 val cellsArr = root.getJSONArray("exploredCells")
-                val cells = (0 until cellsArr.length()).map { i ->
+                (0 until cellsArr.length()).map { i ->
                     val cell = cellsArr.getJSONObject(i)
-                    ExploredCell(
-                        areaId = areaId,
-                        cellRow = cell.getInt("row"),
-                        cellCol = cell.getInt("col")
-                    )
+                    Pair(cell.getInt("row"), cell.getInt("col"))
                 }
-                insertCells(cells)
+            } else emptyList()
+
+            // Commit area and cells atomically.
+            db.withTransaction {
+                val areaId = insertArea(area)
+                if (parsedCells.isNotEmpty()) {
+                    insertCells(parsedCells.map { (row, col) ->
+                        ExploredCell(areaId = areaId, cellRow = row, cellCol = col)
+                    })
+                }
             }
             true
         } catch (e: Exception) {

@@ -10,7 +10,9 @@ import mrigank.roam.data.Area
 import mrigank.roam.data.ExploredCell
 import mrigank.roam.data.ExploreRepository
 import mrigank.roam.data.GridUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ExplorationViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -53,7 +55,9 @@ class ExplorationViewModel(application: Application) : AndroidViewModel(applicat
     fun updateExploredPercent() {
         viewModelScope.launch {
             val currentArea = _area.value ?: return@launch
-            val percent = repository.getExploredPercent(currentArea)
+            val percent = withContext(Dispatchers.IO) {
+                repository.getExploredPercent(currentArea)
+            }
             _exploredPercent.postValue(percent)
         }
     }

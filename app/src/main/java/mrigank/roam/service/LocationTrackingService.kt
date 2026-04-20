@@ -190,7 +190,12 @@ class LocationTrackingService : Service() {
         serviceScope.launch {
             val area = repository?.getAreaById(areaId) ?: return@launch
             val cells = GridUtils.cellsInRadius(area, location.latitude, location.longitude, radiusMeters)
-            val exploredCells = cells.map { (row, col) ->
+            val polygons = GridUtils.parsePolygons(area.polygonsJson)
+            val filteredCells = if (polygons.isEmpty()) cells else cells.filter { (row, col) ->
+                val (cLat, cLng) = GridUtils.cellCenterLatLng(area, row, col)
+                polygons.any { poly -> GridUtils.pointInPolygon(cLat, cLng, poly) }
+            }
+            val exploredCells = filteredCells.map { (row, col) ->
                 ExploredCell(areaId = areaId, cellRow = row, cellCol = col)
             }
             if (exploredCells.isNotEmpty()) {

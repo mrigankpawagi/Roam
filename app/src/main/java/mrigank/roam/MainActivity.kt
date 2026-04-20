@@ -22,6 +22,7 @@ import mrigank.roam.databinding.ActivityMainBinding
 import mrigank.roam.databinding.DialogRadiusBinding
 import mrigank.roam.databinding.ItemAreaBinding
 import mrigank.roam.viewmodel.MainViewModel
+import kotlinx.coroutines.Job
 
 class MainActivity : AppCompatActivity() {
 
@@ -188,12 +189,15 @@ class MainActivity : AppCompatActivity() {
         inner class AreaViewHolder(private val b: ItemAreaBinding) :
             RecyclerView.ViewHolder(b.root) {
 
+            private var loadJob: Job? = null
+
             fun bind(area: Area) {
+                loadJob?.cancel()
                 b.textAreaName.text = area.name
                 b.textPercent.text = getString(R.string.percent_loading)
                 b.progressBar.progress = 0
 
-                viewModel.loadExploredPercent(area) { percent ->
+                loadJob = viewModel.loadExploredPercent(area) { percent ->
                     b.textPercent.text = getString(R.string.percent_format, percent)
                     b.progressBar.progress = percent.toInt()
                 }

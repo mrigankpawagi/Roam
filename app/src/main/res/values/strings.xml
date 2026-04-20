@@ -35,6 +35,8 @@
     <string name="create_new">Create New</string>
     <string name="pick_from_library">Pick from Library</string>
     <string name="library_empty">No bundled library files found.</string>
+    <string name="add_menu_expanded">Add options expanded</string>
+    <string name="add_menu_collapsed">Add options collapsed</string>
     <string name="export_area">Export</string>
     <string name="export_with_progress">Export with progress</string>
     <string name="export_without_progress">Export without progress</string>

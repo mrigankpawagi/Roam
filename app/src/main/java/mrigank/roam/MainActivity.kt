@@ -131,6 +131,7 @@ class MainActivity : AppCompatActivity() {
             binding.fabCreate.show()
             binding.fabImport.show()
             binding.fabLibrary.show()
+            binding.root.announceForAccessibility(getString(R.string.add_menu_expanded))
         }
     }
 
@@ -139,6 +140,7 @@ class MainActivity : AppCompatActivity() {
         binding.fabCreate.hide()
         binding.fabImport.hide()
         binding.fabLibrary.hide()
+        binding.root.announceForAccessibility(getString(R.string.add_menu_collapsed))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

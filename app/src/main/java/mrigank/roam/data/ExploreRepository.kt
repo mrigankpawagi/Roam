@@ -117,12 +117,25 @@ class ExploreRepository(context: Context) {
                     Pair(cell.getInt("row"), cell.getInt("col"))
                 }
             } else emptyList()
+            val polygons = GridUtils.parsePolygons(area.polygonsJson)
+            val rows = GridUtils.numRows(area)
+            val cols = GridUtils.numCols(area)
+            val sanitizedCells = parsedCells.distinct().filter { (row, col) ->
+                if (row !in 0 until rows || col !in 0 until cols) {
+                    false
+                } else if (polygons.isEmpty()) {
+                    true
+                } else {
+                    val (cLat, cLng) = GridUtils.cellCenterLatLng(area, row, col)
+                    polygons.any { poly -> GridUtils.pointInPolygon(cLat, cLng, poly) }
+                }
+            }
 
             // Commit area and cells atomically.
             db.withTransaction {
                 val areaId = insertArea(area)
-                if (parsedCells.isNotEmpty()) {
-                    insertCells(parsedCells.map { (row, col) ->
+                if (sanitizedCells.isNotEmpty()) {
+                    insertCells(sanitizedCells.map { (row, col) ->
                         ExploredCell(areaId = areaId, cellRow = row, cellCol = col)
                     })
                 }

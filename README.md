@@ -4,7 +4,7 @@
 
 ### Explore your area. Track your progress. Roam more.
 
-Plan an area, walk it, and watch your progress clear the map in real time.
+Turn exploration into a game. Draw an area on the map, walk around, and watch the fog clear in real time as you discover new places.
 
 [![Download Latest Build](https://img.shields.io/badge/Download-Latest%20Build-2563eb?style=for-the-badge)](https://nightly.link/mrigankpawagi/Roam/workflows/build.yml/main/Roam-release-APK.zip)
 ![Platform](https://img.shields.io/badge/Platform-Android-16a34a?style=for-the-badge)
@@ -13,86 +13,26 @@ Plan an area, walk it, and watch your progress clear the map in real time.
 
 ---
 
-## ✨ What is Roam?
+## What is Roam?
 
-**Roam** turns exploration into a challenge for any area of your choice. I created Roam to track my progress as I explored my University campus for the last time before graduating, gamifying the experience and motivating myself to explore more every day. Since there was no existing app that could do just this, I *vibe-coded* Roam to fill the gap.
+I created Roam to track my progress as I explored my university campus one last time before graduating, gamifying the experience and motivating myself to explore more every day. Since no existing app did just this, I *vibe-coded* Roam to fill that gap.
 
----
+Roam turns any area into an exploration challenge. Draw boundaries, set your difficulty, and start walking. The app tracks where you've been with a dark overlay that clears as you explore.
 
-## ✅ Features
-
-### Area creation and editing
-- Draw one or more polygons directly on the map (supports disjoint shapes)
-- Search for locations to jump the map quickly before drawing
-- Edit existing areas later without recreating them from scratch
-- Set an exploration radius (in meters) per area
-
-### Real-time exploration tracking
-- Start/stop tracking per area
-- Foreground location service keeps tracking active during exploration
-- Area progress is shown as a percentage on the dashboard and in the exploration view
-- Fog-of-war style map overlay clears as you explore more cells
-
-### Import and export
-- Export an area **with progress** to share your current state
-- Export an area **without progress** to create fair challenges
-- Import shared area files into your app
-- Useful for friend groups, clubs, and campus challenges
-
-### Eraser tool
-- Enable the eraser from the main screen's overflow menu (**Enable Eraser**)
-- While exploring, tap the **Eraser** button to activate eraser mode
-- Tap or drag over explored cells to un-explore them, restoring the fog
-- Useful for correcting accidental over-exploration or resetting specific zones
-
-### Area management
-- Quick access to edit, set radius, export, and delete from area list actions
-- Deleting an area also removes its tracked progress for that area
+| Main Dashboard | Area Creation | Active Exploration |
+|:---:|:---:|:---:|
+| <img src="screenshots/main_dashboard.jpeg" width="250" alt="Main Dashboard" /> | <img src="screenshots/area_creation.jpeg" width="250" alt="Area Creation" /> | <img src="screenshots/active_exploration.jpeg" width="250" alt="Active Exploration" /> |
 
 ---
 
-## 🚀 Quick Start
+## Getting Started
 
-1. Download the latest APK: **[Nightly Build](https://nightly.link/mrigankpawagi/Roam/workflows/build.yml/main/Roam-release-APK.zip)**
-2. Install it on an Android device (allow install from unknown sources if prompted)
-3. Open Roam and tap **+** to create a new area
-4. Search/map-pan to your target place (for example, your college campus)
-5. Draw polygon boundaries, name the area, and save
-6. Open the area and press **Start** to begin tracking
+1. **Download** the latest APK from the [Nightly Build](https://nightly.link/mrigankpawagi/Roam/workflows/build.yml/main/Roam-release-APK.zip).
+2. **Install** it on your Android device (you may need to allow installation from unknown sources).
+3. **Create an area** by tapping the **+** button and drawing boundaries on the map. Alternatively, you can start with an preset area (like "IISc Campus") from the library, or import an area shared by someone else as a JSON file.
+4. **Start exploring** by opening your area and pressing **Start**
 
----
-
-## 🧭 Usage Walkthrough
-
-### 1) Create your challenge area
-- Tap **+** on the main screen
-- Tap on map points to create polygon vertices
-- Press **Close** after at least 3 points
-- Add another polygon if needed (for disjoint zones)
-- Enter area name and save
-
-### 2) Start exploring
-- Open the area card from the dashboard
-- Grant location permission when asked
-- Press **Start** to begin marking explored cells
-- Keep the app/service running while walking the area
-
-### 3) Tune difficulty
-- Open area menu → **Set Exploration Radius**
-- Lower radius = finer granularity, harder challenge
-- Higher radius = faster progress, easier challenge
-
-### 4) Erase explored cells
-- Enable the eraser: main screen overflow menu → **Enable Eraser**
-- Open an area and tap **Eraser** to enter eraser mode
-- Tap or drag on the map to un-explore cells and restore the fog
-- Tap **Eraser** again (or press **Stop**) to exit eraser mode
-
-### 5) Share with friends
-- Area menu → **Export**
-- Choose with/without progress
-- Send JSON file to friends
-- Friends can import from the main screen and compete
+That's it! Walk around and watch your progress grow.
 
 ---
 

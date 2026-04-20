@@ -2,14 +2,12 @@
 
 # 🧭 Roam
 
-### Gamify exploration in any area you care about.
+### Explore your area. Track your progress. Roam more.
 
 Plan an area, walk it, and watch your progress clear the map in real time.
 
 [![Download Latest Build](https://img.shields.io/badge/Download-Latest%20Build-2563eb?style=for-the-badge)](https://nightly.link/mrigankpawagi/Roam/workflows/build.yml/main/Roam-release-APK.zip)
 ![Platform](https://img.shields.io/badge/Platform-Android-16a34a?style=for-the-badge)
-![Maps](https://img.shields.io/badge/Maps-OpenStreetMap-f97316?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Active%20Development-9333ea?style=for-the-badge)
 
 </div>
 
@@ -17,11 +15,7 @@ Plan an area, walk it, and watch your progress clear the map in real time.
 
 ## ✨ What is Roam?
 
-**Roam** turns exploration into a challenge for any custom area.
-
-A great example is a **college campus**: draw your campus boundary, roam around between classes, and try to push your explored percentage higher every day.
-
-Roam is also proudly **vibe-coded**.
+**Roam** turns exploration into a challenge for any area of your choice. I created Roam to track my progress as I explored my University campus for the last time before graduating, gamifying the experience and motivating myself to explore more every day. Since there was no existing app that could do just this, I *vibe-coded* Roam to fill the gap.
 
 ---
 
@@ -102,23 +96,6 @@ Roam is also proudly **vibe-coded**.
 
 ---
 
-## 🛠️ Built With
-
-- Kotlin + Android SDK
-- osmdroid + OpenStreetMap tiles
-- Room (local persistence)
-- Lifecycle ViewModel / LiveData
-
----
-
 ## 🤝 Contributing
 
-PRs and ideas are welcome. If you use Roam for campus exploration challenges, share feedback and feature requests.
-
----
-
-<div align="center">
-
-### Explore your area. Track your progress. Roam more.
-
-</div>
+Issues with ideas, bug reports, or other questions are welcome! Feel free to open PRs if you'd like to contribute. You can also reach out to me to share feedback.

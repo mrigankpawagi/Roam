@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.SeekBar
 import android.widget.Toast
+import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -93,22 +94,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showLibraryPicker() {
-        val libraryFiles = try {
+        val libraryFileNames = try {
             assets.list(LIBRARY_ASSET_DIR)
                 ?.filter { it.endsWith(".json", ignoreCase = true) }
                 ?.sorted()
                 .orEmpty()
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to list bundled library assets", e)
             emptyList()
         }
-        if (libraryFiles.isEmpty()) {
+        if (libraryFileNames.isEmpty()) {
             Toast.makeText(this, getString(R.string.library_empty), Toast.LENGTH_SHORT).show()
             return
         }
         AlertDialog.Builder(this)
             .setTitle(R.string.pick_from_library)
-            .setItems(libraryFiles.toTypedArray()) { _, which ->
-                val selectedPath = "$LIBRARY_ASSET_DIR/${libraryFiles[which]}"
+            .setItems(libraryFileNames.toTypedArray()) { _, which ->
+                val selectedPath = "$LIBRARY_ASSET_DIR/${libraryFileNames[which]}"
                 viewModel.importAreaFromAsset(selectedPath) { success ->
                     Toast.makeText(
                         this,
@@ -308,6 +310,7 @@ class MainActivity : AppCompatActivity() {
         private const val MENU_EXPORT = 3
         private const val MENU_DELETE = 4
         private const val LIBRARY_ASSET_DIR = "library"
+        private const val TAG = "MainActivity"
         const val PREF_ERASER_ENABLED = "eraser_enabled"
     }
 }

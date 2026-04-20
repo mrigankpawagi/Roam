@@ -49,8 +49,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:gravity="center_horizontal"
         android:orientation="vertical"
+        android:gravity="center_horizontal"
         android:clipChildren="false"
         android:clipToPadding="false">
 

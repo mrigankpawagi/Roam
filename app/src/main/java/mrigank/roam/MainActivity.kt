@@ -93,10 +93,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showLibraryPicker() {
-        val libraryFiles = assets.list(LIBRARY_ASSET_DIR)
-            ?.filter { it.endsWith(".json", ignoreCase = true) }
-            ?.sorted()
-            .orEmpty()
+        val libraryFiles = try {
+            assets.list(LIBRARY_ASSET_DIR)
+                ?.filter { it.endsWith(".json", ignoreCase = true) }
+                ?.sorted()
+                .orEmpty()
+        } catch (_: Exception) {
+            emptyList()
+        }
         if (libraryFiles.isEmpty()) {
             Toast.makeText(this, getString(R.string.library_empty), Toast.LENGTH_SHORT).show()
             return
@@ -129,7 +133,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun closeFabMenu() {
-        if (!isFabMenuOpen) return
         isFabMenuOpen = false
         binding.fabCreate.hide()
         binding.fabImport.hide()

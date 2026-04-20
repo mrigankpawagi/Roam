@@ -81,4 +81,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             onResult(success)
         }
     }
+
+    fun importAreaFromAsset(
+        assetPath: String,
+        onResult: (Boolean) -> Unit
+    ) {
+        viewModelScope.launch {
+            val success = withContext(Dispatchers.IO) {
+                try {
+                    val json = getApplication<Application>().assets.open(assetPath).use { stream ->
+                        stream.bufferedReader().readText()
+                    }
+                    repository.importFromJson(json)
+                } catch (e: Exception) {
+                    false
+                }
+            }
+            onResult(success)
+        }
+    }
 }

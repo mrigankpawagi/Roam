@@ -32,6 +32,9 @@
     <string name="delete_area_title">Delete Area</string>
     <string name="delete_area_message">Delete \'%s\'? This will also erase all exploration progress for this area.</string>
     <string name="import_area">Import Area</string>
+    <string name="create_new">Create New</string>
+    <string name="pick_from_library">Pick from Library</string>
+    <string name="library_empty">No bundled library files found.</string>
     <string name="export_area">Export</string>
     <string name="export_with_progress">Export with progress</string>
     <string name="export_without_progress">Export without progress</string>

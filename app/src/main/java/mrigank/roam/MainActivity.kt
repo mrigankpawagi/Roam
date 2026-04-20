@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
     private val adapter = AreaAdapter()
+    private var isFabMenuOpen = false
 
     private var pendingExportArea: Area? = null
     private var pendingExportWithProgress: Boolean = false
@@ -70,12 +71,18 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
 
-        binding.fab.setOnClickListener {
+        binding.fab.setOnClickListener { toggleFabMenu() }
+        binding.fabCreate.setOnClickListener {
+            closeFabMenu()
             startActivity(Intent(this, AreaSelectionActivity::class.java))
         }
-
         binding.fabImport.setOnClickListener {
+            closeFabMenu()
             openDocumentLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
+        }
+        binding.fabLibrary.setOnClickListener {
+            closeFabMenu()
+            showLibraryPicker()
         }
 
         viewModel.allAreas.observe(this) { areas ->
@@ -83,6 +90,50 @@ class MainActivity : AppCompatActivity() {
             binding.textEmpty.visibility =
                 if (areas.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
         }
+    }
+
+    private fun showLibraryPicker() {
+        val libraryFiles = assets.list(LIBRARY_ASSET_DIR)
+            ?.filter { it.endsWith(".json", ignoreCase = true) }
+            ?.sorted()
+            .orEmpty()
+        if (libraryFiles.isEmpty()) {
+            Toast.makeText(this, getString(R.string.library_empty), Toast.LENGTH_SHORT).show()
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.pick_from_library)
+            .setItems(libraryFiles.toTypedArray()) { _, which ->
+                val selectedPath = "$LIBRARY_ASSET_DIR/${libraryFiles[which]}"
+                viewModel.importAreaFromAsset(selectedPath) { success ->
+                    Toast.makeText(
+                        this,
+                        if (success) getString(R.string.import_success) else getString(R.string.import_error),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun toggleFabMenu() {
+        if (isFabMenuOpen) {
+            closeFabMenu()
+        } else {
+            isFabMenuOpen = true
+            binding.fabCreate.show()
+            binding.fabImport.show()
+            binding.fabLibrary.show()
+        }
+    }
+
+    private fun closeFabMenu() {
+        if (!isFabMenuOpen) return
+        isFabMenuOpen = false
+        binding.fabCreate.hide()
+        binding.fabImport.hide()
+        binding.fabLibrary.hide()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -253,6 +304,7 @@ class MainActivity : AppCompatActivity() {
         private const val MENU_RADIUS = 2
         private const val MENU_EXPORT = 3
         private const val MENU_DELETE = 4
+        private const val LIBRARY_ASSET_DIR = "library"
         const val PREF_ERASER_ENABLED = "eraser_enabled"
     }
 }

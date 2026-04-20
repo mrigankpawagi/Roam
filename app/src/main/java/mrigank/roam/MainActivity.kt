@@ -18,12 +18,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Job
+import java.util.Locale
+import org.json.JSONObject
 import mrigank.roam.data.Area
 import mrigank.roam.databinding.ActivityMainBinding
 import mrigank.roam.databinding.DialogRadiusBinding
 import mrigank.roam.databinding.ItemAreaBinding
 import mrigank.roam.viewmodel.MainViewModel
-import kotlinx.coroutines.Job
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,6 +36,13 @@ class MainActivity : AppCompatActivity() {
 
     private var pendingExportArea: Area? = null
     private var pendingExportWithProgress: Boolean = false
+    private var cachedLibraryItems: List<LibraryItem>? = null
+
+    private data class LibraryItem(
+        val fileName: String,
+        val displayName: String,
+        val sortKey: String
+    )
 
     private val createDocumentLauncher = registerForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
@@ -94,23 +103,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showLibraryPicker() {
-        val libraryFileNames = try {
-            assets.list(LIBRARY_ASSET_DIR)
-                ?.filter { it.endsWith(".json", ignoreCase = true) }
-                ?.sorted()
-                .orEmpty()
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to list bundled library assets", e)
-            emptyList()
-        }
-        if (libraryFileNames.isEmpty()) {
+        val libraryItems = cachedLibraryItems ?: loadLibraryItems().also { cachedLibraryItems = it }
+        if (libraryItems.isEmpty()) {
             Toast.makeText(this, getString(R.string.library_empty), Toast.LENGTH_SHORT).show()
             return
         }
         AlertDialog.Builder(this)
             .setTitle(R.string.pick_from_library)
-            .setItems(libraryFileNames.toTypedArray()) { _, which ->
-                val selectedPath = "$LIBRARY_ASSET_DIR/${libraryFileNames[which]}"
+            .setItems(libraryItems.map { it.displayName }.toTypedArray()) { _, which ->
+                val selectedPath = "$LIBRARY_ASSET_DIR/${libraryItems[which].fileName}"
                 viewModel.importAreaFromAsset(selectedPath) { success ->
                     Toast.makeText(
                         this,
@@ -123,6 +124,40 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun loadLibraryItems(): List<LibraryItem> {
+        val locale = Locale.getDefault()
+        return try {
+            assets.list(LIBRARY_ASSET_DIR)
+                ?.filter { it.endsWith(".json", ignoreCase = true) }
+                ?.map { fileName ->
+                    val assetPath = "$LIBRARY_ASSET_DIR/$fileName"
+                    val displayName = try {
+                        assets.open(assetPath).use { stream ->
+                            val json = stream.bufferedReader().readText()
+                            JSONObject(json)
+                                .optJSONObject("area")
+                                ?.optString("name")
+                                ?.takeIf { it.isNotBlank() }
+                                ?: prettifyLibraryFileName(fileName, locale)
+                        }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Failed to parse area name from asset: $assetPath", e)
+                        prettifyLibraryFileName(fileName, locale)
+                    }
+                    LibraryItem(
+                        fileName = fileName,
+                        displayName = displayName,
+                        sortKey = displayName.lowercase(locale)
+                    )
+                }
+                ?.sortedBy { it.sortKey }
+                .orEmpty()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to list bundled library assets", e)
+            emptyList()
+        }
+    }
+
     private fun toggleFabMenu() {
         if (isFabMenuOpen) {
             closeFabMenu()
@@ -131,6 +166,8 @@ class MainActivity : AppCompatActivity() {
             binding.fabCreate.show()
             binding.fabImport.show()
             binding.fabLibrary.show()
+            binding.fab.setImageResource(android.R.drawable.ic_menu_revert)
+            binding.fab.contentDescription = getString(R.string.main_fab_back)
             binding.root.announceForAccessibility(getString(R.string.add_menu_expanded))
         }
     }
@@ -140,7 +177,23 @@ class MainActivity : AppCompatActivity() {
         binding.fabCreate.hide()
         binding.fabImport.hide()
         binding.fabLibrary.hide()
+        binding.fab.setImageResource(DEFAULT_MAIN_FAB_ICON_RES)
+        binding.fab.contentDescription = getString(R.string.add_area)
         binding.root.announceForAccessibility(getString(R.string.add_menu_collapsed))
+    }
+
+    private fun prettifyLibraryFileName(fileName: String, locale: Locale): String {
+        return fileName
+            .removeSuffix(".json")
+            .replace('_', ' ')
+            .replace('-', ' ')
+            .replace(WHITESPACE_REGEX, " ")
+            .trim()
+            .split(" ")
+            .filter { it.isNotBlank() }
+            .joinToString(" ") { part ->
+                part.lowercase(locale).replaceFirstChar { it.titlecase(locale) }
+            }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -312,7 +365,9 @@ class MainActivity : AppCompatActivity() {
         private const val MENU_EXPORT = 3
         private const val MENU_DELETE = 4
         private const val LIBRARY_ASSET_DIR = "library"
+        private const val DEFAULT_MAIN_FAB_ICON_RES = android.R.drawable.ic_input_add
         private const val TAG = "MainActivity"
+        private val WHITESPACE_REGEX = Regex("\\s+")
         const val PREF_ERASER_ENABLED = "eraser_enabled"
     }
 }

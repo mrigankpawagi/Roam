@@ -62,7 +62,7 @@
             android:contentDescription="@string/pick_from_library"
             android:visibility="gone"
             app:fabSize="mini"
-            app:srcCompat="@android:drawable/ic_menu_agenda" />
+            app:srcCompat="@android:drawable/ic_menu_mapmode" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabImport"
@@ -82,7 +82,7 @@
             android:contentDescription="@string/create_new"
             android:visibility="gone"
             app:fabSize="mini"
-            app:srcCompat="@android:drawable/ic_input_add" />
+            app:srcCompat="@android:drawable/ic_menu_edit" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"

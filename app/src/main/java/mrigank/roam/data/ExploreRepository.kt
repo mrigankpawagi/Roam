@@ -94,20 +94,6 @@ class ExploreRepository(context: Context) {
         return root.toString(2)
     }
 
-    private fun isCellInsideArea(
-        area: Area,
-        row: Int,
-        col: Int,
-        polygons: List<List<Pair<Double, Double>>>,
-        rows: Int,
-        cols: Int
-    ): Boolean {
-        if (row !in 0 until rows || col !in 0 until cols) return false
-        if (polygons.isEmpty()) return true
-        val (cLat, cLng) = GridUtils.cellCenterLatLng(area, row, col)
-        return polygons.any { poly -> GridUtils.pointInPolygon(cLat, cLng, poly) }
-    }
-
     suspend fun importFromJson(json: String): Boolean {
         return try {
             // Parse the entire payload before touching the database so that a malformed
@@ -134,8 +120,15 @@ class ExploreRepository(context: Context) {
             val polygons = GridUtils.parsePolygons(area.polygonsJson)
             val rows = GridUtils.numRows(area)
             val cols = GridUtils.numCols(area)
-            val sanitizedCells = parsedCells.filter { (row, col) ->
-                isCellInsideArea(area, row, col, polygons, rows, cols)
+            val sanitizedCells = parsedCells.distinct().filter { (row, col) ->
+                if (row !in 0 until rows || col !in 0 until cols) {
+                    false
+                } else if (polygons.isEmpty()) {
+                    true
+                } else {
+                    val (cLat, cLng) = GridUtils.cellCenterLatLng(area, row, col)
+                    polygons.any { poly -> GridUtils.pointInPolygon(cLat, cLng, poly) }
+                }
             }
 
             // Commit area and cells atomically.

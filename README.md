@@ -17,7 +17,7 @@ Turn exploration into a game. Draw an area on the map, walk around, and watch th
 
 I created Roam to track my progress as I explored my university campus one last time before graduating, gamifying the experience and motivating myself to explore more every day. Since no existing app did just this, I *vibe-coded* Roam to fill that gap.
 
-Roam turns any area into an exploration challenge. Draw boundaries, set your difficulty, and start walking. The app tracks where you've been with a dark overlay that clears as you explore.
+Roam turns any area into an exploration challenge. Draw boundaries, set your difficulty, and start walking. The app tracks where you've been with a dark overlay that clears as you explore. Roam also shows you the percentage of your selected area that has been explored.
 
 | Main Dashboard | Area Creation | Active Exploration |
 |:---:|:---:|:---:|

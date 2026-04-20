@@ -24,6 +24,7 @@ import mrigank.roam.databinding.DialogRadiusBinding
 import mrigank.roam.databinding.ItemAreaBinding
 import mrigank.roam.viewmodel.MainViewModel
 import kotlinx.coroutines.Job
+import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
@@ -94,23 +95,40 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showLibraryPicker() {
-        val libraryFileNames = try {
+        val libraryItems = try {
             assets.list(LIBRARY_ASSET_DIR)
                 ?.filter { it.endsWith(".json", ignoreCase = true) }
-                ?.sorted()
+                ?.map { fileName ->
+                    val assetPath = "$LIBRARY_ASSET_DIR/$fileName"
+                    val displayName = try {
+                        assets.open(assetPath).use { stream ->
+                            val json = stream.bufferedReader().readText()
+                            JSONObject(json)
+                                .optJSONObject("area")
+                                ?.optString("name")
+                                ?.takeIf { it.isNotBlank() }
+                                ?: prettifyLibraryFileName(fileName)
+                        }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Failed to parse area name from asset: $assetPath", e)
+                        prettifyLibraryFileName(fileName)
+                    }
+                    LibraryItem(fileName = fileName, displayName = displayName)
+                }
+                ?.sortedBy { it.displayName.lowercase() }
                 .orEmpty()
         } catch (e: Exception) {
             Log.e(TAG, "Failed to list bundled library assets", e)
             emptyList()
         }
-        if (libraryFileNames.isEmpty()) {
+        if (libraryItems.isEmpty()) {
             Toast.makeText(this, getString(R.string.library_empty), Toast.LENGTH_SHORT).show()
             return
         }
         AlertDialog.Builder(this)
             .setTitle(R.string.pick_from_library)
-            .setItems(libraryFileNames.toTypedArray()) { _, which ->
-                val selectedPath = "$LIBRARY_ASSET_DIR/${libraryFileNames[which]}"
+            .setItems(libraryItems.map { it.displayName }.toTypedArray()) { _, which ->
+                val selectedPath = "$LIBRARY_ASSET_DIR/${libraryItems[which].fileName}"
                 viewModel.importAreaFromAsset(selectedPath) { success ->
                     Toast.makeText(
                         this,
@@ -131,6 +149,8 @@ class MainActivity : AppCompatActivity() {
             binding.fabCreate.show()
             binding.fabImport.show()
             binding.fabLibrary.show()
+            binding.fab.setImageResource(R.drawable.ic_arrow_back)
+            binding.fab.contentDescription = getString(R.string.main_fab_back)
             binding.root.announceForAccessibility(getString(R.string.add_menu_expanded))
         }
     }
@@ -140,7 +160,18 @@ class MainActivity : AppCompatActivity() {
         binding.fabCreate.hide()
         binding.fabImport.hide()
         binding.fabLibrary.hide()
+        binding.fab.setImageResource(android.R.drawable.ic_input_add)
+        binding.fab.contentDescription = getString(R.string.add_area)
         binding.root.announceForAccessibility(getString(R.string.add_menu_collapsed))
+    }
+
+    private fun prettifyLibraryFileName(fileName: String): String {
+        return fileName
+            .removeSuffix(".json")
+            .replace('_', ' ')
+            .replace('-', ' ')
+            .replace(Regex("\\s+"), " ")
+            .trim()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -315,4 +346,9 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MainActivity"
         const val PREF_ERASER_ENABLED = "eraser_enabled"
     }
+
+    private data class LibraryItem(
+        val fileName: String,
+        val displayName: String
+    )
 }

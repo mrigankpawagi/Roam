@@ -23,6 +23,8 @@ Roam turns any area into an exploration challenge. Draw boundaries, set your dif
 |:---:|:---:|:---:|
 | <img src="screenshots/main_dashboard.jpeg" width="250" alt="Main Dashboard" /> | <img src="screenshots/area_creation.jpeg" width="250" alt="Area Creation" /> | <img src="screenshots/active_exploration.jpeg" width="250" alt="Active Exploration" /> |
 
+All your data is stored locally on your phone and never shared over the network. For backup or sync, you can export your progress for each area into a JSON file and import it later.
+
 ---
 
 ## Getting Started

@@ -31,7 +31,7 @@ All your data is stored locally on your phone and never shared over the network.
 
 1. **Download** the latest APK from the [Nightly Build](https://nightly.link/mrigankpawagi/Roam/workflows/build.yml/main/Roam-release-APK.zip).
 2. **Install** it on your Android device (you may need to allow installation from unknown sources).
-3. **Create an area** by tapping the **+** button and drawing boundaries on the map. Alternatively, you can start with an preset area (like "IISc Campus") from the library, or import an area shared by someone else as a JSON file.
+3. **Create an area** by tapping the **+** button and drawing boundaries on the map. Alternatively, you can start with a preset area (like "IISc Campus") from the library, or import an area shared by someone else as a JSON file.
 4. **Start exploring** by opening your area and pressing **Start**
 
 That's it! Walk around and watch your progress grow.
